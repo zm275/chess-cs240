@@ -1,0 +1,1 @@
+installed intelliJ and linked with GitHub
