@@ -61,6 +61,8 @@ public class ChessPiece {
             case KING:
                 break;
             case QUEEN:
+                addDiagonalMoves(board,myPosition,moves);
+                addHorizontalAndVerticalMoves(board, myPosition, moves);
                 break;
             case BISHOP:
                 addDiagonalMoves(board,myPosition,moves);
@@ -94,7 +96,34 @@ public class ChessPiece {
 
         }
     }
+    public void addHorizontalAndVerticalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
+        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
+        List<int[]> directions = List.of(
+                new int[]{1, 0},
+                new int[]{-1, 0},
+                new int[]{0, 1},
+                new int[]{0, -1}
+        );
 
+        for (int[] direction : directions){
+            int row = myPosition.getRow() + direction[0];
+            int col = myPosition.getColumn() + direction[1];
+            whileLoop:
+            while (board.isValidPosition(new ChessPosition(row, col))){
+                if (board.isOccupied(new ChessPosition(row, col))){
+                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                    }
+                    break whileLoop;
+                }
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+
+                row += direction[0];
+                col += direction[1];
+            }
+
+        }
+    }
     public void addDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
         //get myPiece color
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
