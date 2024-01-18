@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Represents a single chess piece
@@ -55,8 +56,6 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
         //get the piecetype, so we can decide what moves are valid
         switch (this.type) {
             case KING:
@@ -64,19 +63,7 @@ public class ChessPiece {
             case QUEEN:
                 break;
             case BISHOP:
-                for (int i = 1; i <= 8; i++) {
-                    for (int j = 1; j <= 8; j++) {
-                        //check if the move is diagonal from the start
-                        if ((Math.abs(row - i)) == (Math.abs(col - j))) {
-                            //if the end position != start position, i.e. the piece needs to move
-                            if (row != i && col != j){
-                                //add the move to teh collection
-                                moves.add(new ChessMove(myPosition, new ChessPosition(i, j), null));
-                            }
-                        }
-                    }
-
-                }
+                addDiagonalMoves(board,myPosition,moves);
                 break;
             case KNIGHT:
                 break;
@@ -88,5 +75,54 @@ public class ChessPiece {
 
         
         return moves;
+    }
+    public void bishopMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                //check if the move is diagonal from the start
+                if ((Math.abs(row - i)) == (Math.abs(col - j))) {
+                    //if the end position != start position, i.e. the piece needs to move
+                    if (row != i && col != j){
+                        //add the move to teh collection
+                        moves.add(new ChessMove(myPosition, new ChessPosition(i, j), null));
+                    }
+                }
+            }
+
+        }
+    }
+
+    public void addDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
+        //get myPiece color
+        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
+        List<int[]> directions = List.of(
+                new int[]{-1, -1},
+                new int[]{-1, 1},
+                new int[]{1, -1},
+                new int[]{1, 1}
+        );
+
+        for (int[] direction : directions){
+            int row = myPosition.getRow() + direction[0];
+            int col = myPosition.getColumn() + direction[1];
+            whileLoop:
+            while (board.isValidPosition(new ChessPosition(row, col))){
+                //if position is occupied by a friendly piece
+                if (board.isOccupied(new ChessPosition(row, col))){
+                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
+                    }
+                    break whileLoop;
+                }
+                moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
+
+                row += direction[0];
+                col += direction[1];
+            }
+        }
+
     }
 }
