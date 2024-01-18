@@ -70,6 +70,7 @@ public class ChessPiece {
                 addDiagonalMoves(board,myPosition,moves);
                 break;
             case KNIGHT:
+                addKnightMoves(board, myPosition, moves);
                 break;
             case ROOK:
                 addHorizontalAndVerticalMoves(board, myPosition, moves);
@@ -189,6 +190,37 @@ public class ChessPiece {
                 col += direction[1];
             }
         }
+    }
 
+    public void addKnightMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
+        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
+        List<int[]> directions = List.of(
+                new int[]{1, 2},
+                new int[]{1, -2},
+                new int[]{2, 1},
+                new int[]{2, -1},
+                new int[]{-1, 2},
+                new int[]{-1, -2},
+                new int[]{-2, 1},
+                new int[]{-2, -1}
+                );
+
+        for (int[] direction : directions){
+            int row = myPosition.getRow() + direction[0];
+            int col = myPosition.getColumn() + direction[1];
+
+            validIfStatement:
+            if (board.isValidPosition(new ChessPosition(row, col))){
+                //if position is occupied by a friendly piece
+                if (board.isOccupied(new ChessPosition(row, col))){
+                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
+                    }
+                    break validIfStatement;
+                }
+                moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
+            }
+        }
     }
 }
+
