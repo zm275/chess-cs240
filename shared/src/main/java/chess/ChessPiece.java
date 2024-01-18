@@ -72,6 +72,7 @@ public class ChessPiece {
             case KNIGHT:
                 break;
             case ROOK:
+                addHorizontalAndVerticalMoves(board, myPosition, moves);
                 break;
             case PAWN:
                 break;
