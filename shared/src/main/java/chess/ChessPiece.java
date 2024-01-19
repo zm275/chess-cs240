@@ -192,6 +192,10 @@ public class ChessPiece {
                 new int[]{0, -1}
         );
 
+        addSingleMovesFromDirections(board, myPosition, moves, myColor, directions);
+    }
+
+    private void addSingleMovesFromDirections(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, ChessGame.TeamColor myColor, List<int[]> directions) {
         for (int[] direction : directions){
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
@@ -218,6 +222,10 @@ public class ChessPiece {
                 new int[]{0, -1}
         );
 
+        addMovesFromDirections(board, myPosition, moves, myColor, directions);
+    }
+
+    private void addMovesFromDirections(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, ChessGame.TeamColor myColor, List<int[]> directions) {
         for (int[] direction : directions){
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
@@ -237,6 +245,7 @@ public class ChessPiece {
 
         }
     }
+
     public void addSingleDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
         List<int[]> directions = List.of(
@@ -246,22 +255,7 @@ public class ChessPiece {
                 new int[]{1, 1}
         );
 
-        for (int[] direction : directions){
-            int row = myPosition.getRow() + direction[0];
-            int col = myPosition.getColumn() + direction[1];
-
-            validIfStatement:
-            if (board.isValidPosition(new ChessPosition(row, col))){
-                //if position is occupied by a friendly piece
-                if (board.isOccupied(new ChessPosition(row, col))){
-                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor){
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
-                    }
-                    break validIfStatement;
-                }
-                moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
-            }
-        }
+        addSingleMovesFromDirections(board, myPosition, moves, myColor, directions);
     }
     public void addDiagonalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
         //get myPiece color
@@ -273,24 +267,7 @@ public class ChessPiece {
                 new int[]{1, 1}
         );
 
-        for (int[] direction : directions){
-            int row = myPosition.getRow() + direction[0];
-            int col = myPosition.getColumn() + direction[1];
-            whileLoop:
-            while (board.isValidPosition(new ChessPosition(row, col))){
-                //if position is occupied by a friendly piece
-                if (board.isOccupied(new ChessPosition(row, col))){
-                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor){
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
-                    }
-                    break whileLoop;
-                }
-                moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
-
-                row += direction[0];
-                col += direction[1];
-            }
-        }
+        addMovesFromDirections(board, myPosition, moves, myColor, directions);
     }
 
     public void addKnightMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
@@ -306,22 +283,7 @@ public class ChessPiece {
                 new int[]{-2, -1}
                 );
 
-        for (int[] direction : directions){
-            int row = myPosition.getRow() + direction[0];
-            int col = myPosition.getColumn() + direction[1];
-
-            validIfStatement:
-            if (board.isValidPosition(new ChessPosition(row, col))){
-                //if position is occupied by a friendly piece
-                if (board.isOccupied(new ChessPosition(row, col))){
-                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor){
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
-                    }
-                    break validIfStatement;
-                }
-                moves.add(new ChessMove(myPosition, new ChessPosition(row,col), null));
-            }
-        }
+        addSingleMovesFromDirections(board, myPosition, moves, myColor, directions);
     }
 }
 
