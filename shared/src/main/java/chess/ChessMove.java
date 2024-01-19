@@ -10,6 +10,10 @@ import java.util.Objects;
  */
 public class ChessMove {
     @Override
+    public String toString() {
+        return  "(" + startPosition + ")" + "->" + "(" + endPosition + ")" + promotionPiece;
+    }
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -56,8 +60,5 @@ public class ChessMove {
         return this.promotionPiece;
     }
 
-    @Override
-    public String toString() {
-        return  "(" + startPosition + "->" + endPosition + ")";
-    }
+
 }

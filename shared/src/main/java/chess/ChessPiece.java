@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -12,8 +13,29 @@ import java.util.List;
  */
 public class ChessPiece {
     private final PieceType type;
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "type=" + type +
+                ", color=" + color +
+                '}';
+    }
+
     private final ChessGame.TeamColor color;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return type == that.type && color == that.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, color);
+    }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.type = type;
@@ -76,11 +98,83 @@ public class ChessPiece {
                 addHorizontalAndVerticalMoves(board, myPosition, moves);
                 break;
             case PAWN:
+                addPawnMoves(board,myPosition,moves);
                 break;
         }
 
         
         return moves;
+    }
+    public void addPawnMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
+        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
+
+        List<int[]> directions = new ArrayList<>();
+        List<int[]> diagonals = new ArrayList<>();
+
+        if (myColor == ChessGame.TeamColor.WHITE){
+            if (myPosition.getRow() == 2) {
+                directions.add(new int[]{2,0});
+            }
+            directions.add(new int[]{1,0});
+            diagonals.add(new int[]{1,1});
+            diagonals.add(new int[]{1,-1});
+
+        } else if (myColor == ChessGame.TeamColor.BLACK) {
+            if (myPosition.getRow() == 7) {
+                directions.add(new int[]{-2,0});
+            }
+
+            directions.add(new int[]{-1,0});
+            diagonals.add(new int[]{-1,1});
+            diagonals.add(new int[]{-1,-1});
+        }
+        //check the diagonals if there is an opposing piece to overtake
+        for (int[] diagonal : diagonals){
+            int row = myPosition.getRow() + diagonal[0];
+            int col = myPosition.getColumn() + diagonal[1];
+
+            if (board.isValidPosition(new ChessPosition(row, col))){
+                if (board.isOccupied(new ChessPosition(row, col))){
+                    if (board.getPiece(new ChessPosition(row, col)).getTeamColor() != myColor) {
+                        //pawn is being promoted
+                        if (row == 8 || row == 1){
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row, col),PieceType.KNIGHT));
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.BISHOP));
+                        }
+                        else {
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                        }
+                    }
+                }
+            }
+        }
+
+
+        for (int[] direction : directions){
+            int row = myPosition.getRow() + direction[0];
+            int col = myPosition.getColumn() + direction[1];
+
+            validIfStatement:
+            if (board.isValidPosition(new ChessPosition(row, col))){
+                if (board.isOccupied(new ChessPosition(row, col))){
+                    break validIfStatement;
+                }
+                //pawn is being promoted
+                if (row == 8 || row == 1){
+                    moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, new ChessPosition(row, col), PieceType.BISHOP));
+                }
+                else {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                }
+            }
+        }
+
+
     }
     public void addSingleHorizontalAndVerticalMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves){
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
