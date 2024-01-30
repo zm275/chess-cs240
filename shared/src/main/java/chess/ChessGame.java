@@ -192,7 +192,17 @@ public class ChessGame {
             return false;
         }
         //simulate each possible move for you team to see if you are no longer in check
-        Collection<ChessPiece> teamPieces = board.getAllChessPiecesForTeam(teamColor);
+        Collection<ChessPiecePosition> teamPiecePosition = board.getAllChessPiecesPositionForTeam(teamColor);
+        for (ChessPiecePosition piecePosition : teamPiecePosition){
+            for (ChessMove move : validMoves(piecePosition.getPosition())){
+                ChessPiece tempPiece = this.testMove(move);
+                if (this.isInCheck(teamColor)){
+                    this.undoTestMove(move, tempPiece);
+                    return false;
+                }
+                this.undoTestMove(move, tempPiece);
+            }
+        }
 
         return true;
     }

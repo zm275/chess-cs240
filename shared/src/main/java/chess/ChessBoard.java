@@ -101,12 +101,12 @@ public class ChessBoard {
         squares[position.getRow() - 1][position.getColumn() - 1] = null;
     }
 
-    public Collection<ChessPiece> getAllChessPiecesForTeam(ChessGame.TeamColor teamColor){
-        Collection<ChessPiece> teamPieces = new ArrayList<>();
-        for (int i = 0; i <=7; i++){
-            for (int j = 0; j <=7; j++){
-                if (squares[i][j].getTeamColor() == teamColor){
-                    teamPieces.add(squares[i][j]);
+    public Collection<ChessPiecePosition> getAllChessPiecesPositionForTeam(ChessGame.TeamColor teamColor){
+        Collection<ChessPiecePosition> teamPieces = new ArrayList<>();
+        for (int i = 0; i <= 7; i++){
+            for (int j = 0; j <= 7; j++){
+                if (squares[i][j] != null && squares[i][j].getTeamColor() == teamColor){
+                    teamPieces.add(new ChessPiecePosition(squares[i][j], new ChessPosition(i + 1,j + 1)));
                 }
             }
         }
