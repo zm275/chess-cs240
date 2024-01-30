@@ -123,6 +123,5 @@ public class ChessBoard {
             }
 
         }
-        int q = 4;
     }
 }

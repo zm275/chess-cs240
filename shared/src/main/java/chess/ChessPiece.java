@@ -111,6 +111,7 @@ public class ChessPiece {
         List<int[]> directions = new ArrayList<>();
         List<int[]> diagonals = new ArrayList<>();
 
+        // this is the logic for the initial move of the pawn piece.
         if (myColor == ChessGame.TeamColor.WHITE){
             if (myPosition.getRow() == 2) {
                 //first check if 1,0 is occupied
@@ -140,6 +141,7 @@ public class ChessPiece {
             diagonals.add(new int[]{-1,1});
             diagonals.add(new int[]{-1,-1});
         }
+
         //check the diagonals if there is an opposing piece to overtake
         for (int[] diagonal : diagonals){
             int row = myPosition.getRow() + diagonal[0];
@@ -153,8 +155,7 @@ public class ChessPiece {
                 }
             }
         }
-
-
+        //check the forward moves
         for (int[] direction : directions){
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
