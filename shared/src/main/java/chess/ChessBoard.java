@@ -1,7 +1,8 @@
 package chess;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
+
+import static java.lang.Character.toUpperCase;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -12,9 +13,27 @@ import java.util.Map;
 public class ChessBoard {
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "squares=" + Arrays.toString(squares) +
-                '}';
+        StringBuilder boardString = new StringBuilder();
+
+        for (int i = 7; i >= 0; i--) {
+            boardString.append("|");
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = squares[i][j];
+                char pieceChar = (piece != null) ? pieceToChar(piece) : ' ';
+                boardString.append(pieceChar).append("|");
+            }
+            boardString.append("\n");
+        }
+
+        return boardString.toString();
+    }
+
+    private char pieceToChar(ChessPiece piece) {
+        char c = typeToCharMap.get(piece.getPieceType());
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+            c = toUpperCase(c);
+        }
+        return c;
     }
 
     private final ChessPiece[][]  squares = new ChessPiece[8][8];
@@ -36,6 +55,16 @@ public class ChessBoard {
     public ChessBoard() {
 
     }
+    final static Map<ChessPiece.PieceType, Character> typeToCharMap = new HashMap<>();
+
+    static {
+        typeToCharMap.put(ChessPiece.PieceType.PAWN, 'p');
+        typeToCharMap.put(ChessPiece.PieceType.KNIGHT, 'n');
+        typeToCharMap.put(ChessPiece.PieceType.ROOK, 'r');
+        typeToCharMap.put(ChessPiece.PieceType.QUEEN, 'q');
+        typeToCharMap.put(ChessPiece.PieceType.KING, 'k');
+        typeToCharMap.put(ChessPiece.PieceType.BISHOP, 'b');
+    }
     final static Map<Character, ChessPiece.PieceType> charToTypeMap = Map.of(
             'p', ChessPiece.PieceType.PAWN,
             'n', ChessPiece.PieceType.KNIGHT,
@@ -43,6 +72,7 @@ public class ChessBoard {
             'q', ChessPiece.PieceType.QUEEN,
             'k', ChessPiece.PieceType.KING,
             'b', ChessPiece.PieceType.BISHOP);
+
     public ChessPiece[][] getSquares(){
         return squares;
     }
@@ -69,6 +99,18 @@ public class ChessBoard {
     }
     public void setPiece(ChessPosition position){
         squares[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
+
+    public Collection<ChessPiece> getAllChessPiecesForTeam(ChessGame.TeamColor teamColor){
+        Collection<ChessPiece> teamPieces = new ArrayList<>();
+        for (int i = 0; i <=7; i++){
+            for (int j = 0; j <=7; j++){
+                if (squares[i][j].getTeamColor() == teamColor){
+                    teamPieces.add(squares[i][j]);
+                }
+            }
+        }
+        return teamPieces;
     }
 
     public boolean isValidPosition(ChessPosition position){

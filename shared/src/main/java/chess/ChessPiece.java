@@ -54,7 +54,9 @@ public class ChessPiece {
         PAWN
     }
 
-
+    public ChessPiece copy(){
+        return new ChessPiece(this.color, this.type);
+    }
     /**
      * @return Which team this chess piece belongs to
      */
@@ -67,6 +69,15 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return this.type;
+    }
+    public Collection<ChessPosition> endPositionsOnlyFromPieceMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moves = pieceMoves(board, myPosition);
+       //get only the endPositions from each move
+        Collection<ChessPosition> endPositions = new ArrayList<>();
+        for ( ChessMove move : moves) {
+            endPositions.add(move.getEndPosition());
+        }
+        return endPositions;
     }
 
     /**
