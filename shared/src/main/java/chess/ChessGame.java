@@ -138,6 +138,9 @@ public class ChessGame {
         squares[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1] = null;
         squares[move.getEndPosition().getRow() - 1][move.getEndPosition().getColumn() - 1] = piece;
 
+        toggleTeamTurn();
+    }
+    public void toggleTeamTurn() {
         if (this.teamTurn == TeamColor.WHITE)
         {this.teamTurn = TeamColor.BLACK;
         } else {
