@@ -84,6 +84,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = this.board.getPiece(startPosition);
+        if (piece == null){
+            return null;
+        }
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
 
@@ -91,7 +94,7 @@ public class ChessGame {
             ChessPiece tempPiece = this.testMove(move);
             if (this.isInCheck(piece.getTeamColor())){
                 this.undoTestMove(move, tempPiece);
-                break;
+                continue;
             }
             validMoves.add(move);
             this.undoTestMove(move, tempPiece);
@@ -128,8 +131,13 @@ public class ChessGame {
         }
         ChessPiece[][] squares = board.getSquares();
         ChessPiece piece = board.getPiece(move.getStartPosition());
+        //check for promotions
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
         squares[move.getStartPosition().getRow() - 1][move.getStartPosition().getColumn() - 1] = null;
         squares[move.getEndPosition().getRow() - 1][move.getEndPosition().getColumn() - 1] = piece;
+
         if (this.teamTurn == TeamColor.WHITE)
         {this.teamTurn = TeamColor.BLACK;
         } else {
