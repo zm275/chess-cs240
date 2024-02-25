@@ -52,4 +52,9 @@ public class MemoryGameDAO implements GameDAO{
         }
         gameDataMap.remove(gameID);
     }
+
+    @Override
+    public void clear() throws DataAccessException {
+        gameDataMap.clear();
+    }
 }

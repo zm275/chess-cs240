@@ -43,4 +43,9 @@ public class MemoryUserDAO implements UserDAO{
         }
         userDataMap.remove(username);
     }
+
+    @Override
+    public void clear() throws DataAccessException {
+        userDataMap.clear();
+    }
 }

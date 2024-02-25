@@ -36,4 +36,9 @@ public class MemoryAuthDAO implements AuthDAO{
         authDataMap.remove(authToken);
 
     }
+
+    @Override
+    public void clear() throws DataAccessException {
+        authDataMap.clear();
+    }
 }
