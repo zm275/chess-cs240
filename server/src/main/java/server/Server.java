@@ -9,11 +9,15 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        staticFiles.location("/web");
+        staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
         Spark.get("/hello", (req, res) -> "Hello Spark!");
-
+        Spark.get("/db", (req, res) -> {
+            // Handle the DELETE request to /db endpoint
+            // For example:
+            return "Deleted something from the database";
+        });
 
 
         Spark.awaitInitialization();
