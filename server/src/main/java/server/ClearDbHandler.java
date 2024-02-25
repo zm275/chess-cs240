@@ -1,5 +1,6 @@
 package server;
 
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
@@ -15,14 +16,13 @@ public class ClearDbHandler {
     }
 
     public Object clearDatabases(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO){
-        boolean result = clearDbService.clearAllData(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
-        if (result){
+        try {
+            clearDbService.clearAllData(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
             response.status(200);
             return new SuccessResponse("Successfully cleared databases").toJson();
-        }
-        else {
+        } catch (DataAccessException e){
             response.status(500);
-            return new ErrorResponse("Failed to clear databases").toJson();
+            return new ErrorResponse(e.toString()).toJson();
         }
 
     }
