@@ -21,6 +21,9 @@ public class UserService {
         }
         return null;
     }
+    public void logoutUser(String authToken, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
+        memoryAuthDAO.deleteAuth(authToken);
+    }
 
 
 }

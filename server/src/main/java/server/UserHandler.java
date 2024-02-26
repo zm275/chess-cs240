@@ -47,19 +47,34 @@ public class UserHandler {
     }
     //returns a new authtoken
     public Object loginUser(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) {
-        UserData userData = gson.fromJson(request.body(), UserData.class);
         try {
+            UserData userData = gson.fromJson(request.body(), UserData.class);
+            if (userData.username() == null || userData.password() == null) {
+                throw new JsonSyntaxException("Error: Null values in UserData");
+            }
             AuthData authData = userService.loginUser(userData, memoryUserDAO, memoryAuthDAO);
             response.status(200);
             return new LoginResponse(true, authData).toJson();
+        } catch (JsonSyntaxException j) {
+            response.status(400);
+            return new BadRequestResponse("Error: Bad Request").toJson();
         } catch (DataAccessException e) {
             response.status(e.getStatusCode());
             return new LoginResponse(false, e).toJson();
         }
     }
-//    public Object logoutUser(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) {
-//
-//    }
+    public Object logoutUser(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) {
+        String authToken = request.headers("authorization");
+        try {
+            userService.logoutUser(authToken, memoryAuthDAO);
+            response.status(200);
+            return "";
+        }
+        catch (DataAccessException e) {
+            response.status(e.getStatusCode());
+            return new LoginResponse(false, e).toJson();
+        }
+    }
 
 
 }
