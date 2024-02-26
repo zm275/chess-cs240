@@ -31,6 +31,7 @@ public class UserHandler {
         try {
             //deserialize request
             UserData userData = gson.fromJson(request.body(), UserData.class);
+            //throws error if there are null values or syntax errors
             if (userData.username() == null || userData.password() == null || userData.email() == null) {
                 throw new JsonSyntaxException("Error: Null values in UserData");
             }

@@ -3,7 +3,10 @@ package server;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.util.log.Log;
+
+import java.util.List;
 
 class Response {
     transient boolean success;
@@ -68,3 +71,27 @@ class LoginResponse extends Response {
 
     }
 }
+
+class ListGamesResponse extends Response {
+    List<GameData> games;
+
+    ListGamesResponse(Boolean success, List<GameData> games) {
+        this.success = success;
+        this.games = games;
+    }
+    ListGamesResponse(Boolean success, DataAccessException e){
+        this.success = success;
+        this.message = e.getLocalizedMessage();
+    }
+
+    public String toJson() {
+        Gson gson = new Gson();
+        if (success) {
+            return gson.toJson(this);
+        }
+        return gson.toJson(this);
+
+    }
+}
+
+

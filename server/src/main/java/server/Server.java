@@ -29,6 +29,7 @@ public class Server {
         Spark.post("/user", (req, res) -> new UserHandler().registerNewUser(req, res, userDAO, authDAO));
         Spark.post("/session", (req, res) -> new UserHandler().loginUser(req, res, userDAO, authDAO));
         Spark.delete("/session", (req, res) -> new UserHandler().logoutUser(req, res, userDAO, authDAO));
+        Spark.get("/game", (req, res) -> new GameHandler().listGames(req, res, authDAO, gameDAO));
 
         Spark.awaitInitialization();
         return Spark.port();

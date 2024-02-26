@@ -30,6 +30,14 @@ public class MemoryAuthDAO implements AuthDAO{
         }
         return authDataMap.get(authToken);
     }
+    @Override
+    public boolean isAuthorized(String authToken) throws DataAccessException {
+        if (!authDataMap.containsKey(authToken)) {
+            throw new DataAccessException("Error: AuthToken not found",401);
+        }
+        return true;
+    }
+
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
