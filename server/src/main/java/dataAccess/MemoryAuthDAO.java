@@ -2,6 +2,7 @@ package dataAccess;
 import model.AuthData;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
     //We will map the AuthToken to the AuthData to make it easy to find the AuthData or check if it is already there
@@ -12,18 +13,20 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void createAuth(AuthData authData) throws DataAccessException {
-        //check if an identical authData is already there
-        if (authDataMap.containsKey(authData.authToken())){
-            throw new DataAccessException("Error: AuthToken already exists");
+    public AuthData createAuth(String username) throws DataAccessException {
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, username);
+        if (authDataMap.containsKey(authToken)) {
+            throw new DataAccessException("Error: AuthToken already exists", 403);
         }
         authDataMap.put(authData.authToken(), authData);
+        return authData;
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
         if (!authDataMap.containsKey(authToken)) {
-            throw new DataAccessException("Error: AuthToken not found");
+            throw new DataAccessException("Error: AuthToken not found",401);
         }
         return authDataMap.get(authToken);
     }
@@ -31,7 +34,7 @@ public class MemoryAuthDAO implements AuthDAO{
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         if (!authDataMap.containsKey(authToken)) {
-            throw new DataAccessException("Error: AuthToken not found");
+            throw new DataAccessException("Error: AuthToken not found",401);
         }
         authDataMap.remove(authToken);
 

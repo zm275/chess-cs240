@@ -17,7 +17,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
         if (gameDataMap.containsKey(gameData.gameID())){
-            throw new DataAccessException("Error: Game with this ID already exists.");
+            throw new DataAccessException("Error: Game with this ID already exists.",403);
         }
         gameDataMap.put(gameData.gameID(), gameData);
 
@@ -26,7 +26,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         if (!gameDataMap.containsKey(gameID)) {
-            throw new DataAccessException("Error: Game not found");
+            throw new DataAccessException("Error: Game not found",401);
         }
         return gameDataMap.get(gameID);
     }
@@ -39,7 +39,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
         if (!gameDataMap.containsKey(gameData.gameID())) {
-            throw new DataAccessException("Error: Game not found");
+            throw new DataAccessException("Error: Game not found",401);
         }
         // Update the game data
         gameDataMap.put(gameData.gameID(), gameData);
@@ -48,7 +48,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void deleteGame(int gameID) throws DataAccessException {
         if (!gameDataMap.containsKey(gameID)) {
-            throw new DataAccessException("Error: Game not found");
+            throw new DataAccessException("Error: Game not found",401);
         }
         gameDataMap.remove(gameID);
     }
