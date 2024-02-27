@@ -1,4 +1,5 @@
 package dataAccess;
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -8,25 +9,29 @@ import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO{
     private final Map<Integer, GameData> gameDataMap;
+    private int nextGameId = 1;
 
     public MemoryGameDAO(){
         this.gameDataMap = new HashMap<>();
     }
 
-
+    public int getNextGameId() {
+        this.nextGameId += 1;
+        return this.nextGameId;
+    }
     @Override
-    public void createGame(GameData gameData) throws DataAccessException {
-        if (gameDataMap.containsKey(gameData.gameID())){
-            throw new DataAccessException("Error: Game with this ID already exists.",403);
-        }
+    public int createGame(String gameName) throws DataAccessException {
+        //gameId that increments
+        GameData gameData = new GameData(getNextGameId(),null, null, gameName, new ChessGame());
         gameDataMap.put(gameData.gameID(), gameData);
+        return gameData.gameID();
 
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         if (!gameDataMap.containsKey(gameID)) {
-            throw new DataAccessException("Error: Game not found",401);
+            throw new DataAccessException("Error: Game not found",400);
         }
         return gameDataMap.get(gameID);
     }
@@ -57,4 +62,5 @@ public class MemoryGameDAO implements GameDAO{
     public void clear() throws DataAccessException {
         gameDataMap.clear();
     }
+
 }

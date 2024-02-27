@@ -6,26 +6,28 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.util.log.Log;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
 class Response {
     transient boolean success;
     String message;
+    public String toJson() {
+        Gson gson = new Gson();
+        if (success) {
+            return gson.toJson(this);
+        }
+        return gson.toJson(this);
+
+    }
 }
 class BadRequestResponse extends Response {
     public BadRequestResponse(String message) {
         this.message = message;
         this.success = false;
     }
-    public String toJson() {
-        Gson gson = new Gson();
-        if (success) {
-            //return authtoken
-            return gson.toJson(this);
-        }
-        return gson.toJson(this);
 
-    }
+
 
 }
 
@@ -39,6 +41,7 @@ class RegisterResponse extends Response {
         this.success = success;
         message = e.getLocalizedMessage();
     }
+    @Override
     public String toJson() {
         Gson gson = new Gson();
         if (success) {
@@ -61,15 +64,7 @@ class LoginResponse extends Response {
         this.success = success;
         message = e.getLocalizedMessage();
     }
-    public String toJson() {
-        Gson gson = new Gson();
-        if (success) {
-            //return authtoken
-            return gson.toJson(this);
-        }
-        return gson.toJson(this);
 
-    }
 }
 
 class ListGamesResponse extends Response {
@@ -84,14 +79,29 @@ class ListGamesResponse extends Response {
         this.message = e.getLocalizedMessage();
     }
 
-    public String toJson() {
-        Gson gson = new Gson();
-        if (success) {
-            return gson.toJson(this);
-        }
-        return gson.toJson(this);
+}
 
+class CreateGameResponse extends Response {
+    Integer gameID;
+
+    CreateGameResponse(boolean success, int gameID) {
+        this.success = success;
+        this.gameID = gameID;
+    }
+
+    CreateGameResponse(boolean success, DataAccessException e) {
+        this.success = success;
+        this.message = e.getLocalizedMessage();
     }
 }
 
+class JoinGameResponse extends Response {
+    JoinGameResponse(boolean success) {
+        this.success = success;
+    }
+    JoinGameResponse(boolean success, DataAccessException e) {
+        this.success = success;
+        this.message = e.getLocalizedMessage();
+    }
+}
 
