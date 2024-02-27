@@ -22,6 +22,9 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public int createGame(String gameName) throws DataAccessException {
         //gameId that increments
+        if (gameName.isEmpty()){
+            throw new DataAccessException("Blank Game Name", 400);
+        }
         GameData gameData = new GameData(getNextGameId(),null, null, gameName, new ChessGame());
         gameDataMap.put(gameData.gameID(), gameData);
         return gameData.gameID();
@@ -43,9 +46,6 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public List<GameData> listGames() throws DataAccessException {
-        if (gameDataMap.isEmpty()) {
-            throw new DataAccessException("No games yet.", 404);
-        }
         return new ArrayList<>(gameDataMap.values());
     }
 

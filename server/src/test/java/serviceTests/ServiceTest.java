@@ -6,6 +6,7 @@ import model.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.ClearDbService;
+import service.GameService;
 import service.UserService;
 
 import javax.xml.crypto.Data;
@@ -19,6 +20,7 @@ public class ServiceTest {
     GameDAO testGameDAO = new MemoryGameDAO();
     ClearDbService clearDbService = new ClearDbService();
     UserService userService = new UserService();
+    GameService gameService = new GameService();
     UserData testUser = new UserData("dave", "1234", "dave@dave.com");
     UserData badTestUser = new UserData("dave", "", "dave@dave.com");
 
@@ -103,13 +105,13 @@ public class ServiceTest {
     @DisplayName("valid list games")
     public void ListGames() throws DataAccessException {
         start();
-        testGameDAO.createGame("coolGame");
-        testGameDAO.createGame("coolGame1");
-        testGameDAO.createGame("coolGame2");
-        testGameDAO.createGame("coolGame3");
+        gameService.createGame("coolGame",testGameDAO);
+        gameService.createGame("coolGame1",testGameDAO);
+        gameService.createGame("coolGame2",testGameDAO);
+        gameService.createGame("coolGame3",testGameDAO);
 
         assertDoesNotThrow(() -> {
-            testGameDAO.listGames();
+            gameService.listGames(testGameDAO);
         });
     }
 
@@ -117,17 +119,30 @@ public class ServiceTest {
     @DisplayName("bad valid list games")
     public void BadListGames() throws DataAccessException {
         start();
-        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
-            testGameDAO.listGames();
-        });
-        assertEquals(404, exception.getStatusCode());
+        assertEquals(0, gameService.listGames(testGameDAO).size());
     }
 
     @Test
     @DisplayName("create new game")
     public void CreateGame() throws DataAccessException {
-
+        start();
+        int gameId = gameService.createGame("TestGame",testGameDAO);
+        assertTrue(gameId > 0);
+        // Verify that the game exists in the gameDataMap
+        assertNotNull(testGameDAO.getGame(gameId));
     }
+    @Test
+    @DisplayName("bad create new game")
+    public void BadCreateGame() throws DataAccessException {
+        start();
+        String invalidGameName = null;
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            gameService.createGame(invalidGameName,testGameDAO);
+        });
+        // Verify that the exception has a status code of 400
+        assertEquals(400, exception.getStatusCode());
+    }
+
 
 
 }
