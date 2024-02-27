@@ -1,17 +1,17 @@
 package server;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
+import server.Handlers.ClearDbHandler;
+import server.Handlers.GameHandler;
+import server.Handlers.UserHandler;
 import spark.*;
-import service.*;
 
 import static spark.Spark.staticFiles;
 
 public class Server {
-    private final MemoryUserDAO userDAO;
-    private final MemoryGameDAO gameDAO;
-    private final MemoryAuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
     public Server() {
         this.userDAO = new MemoryUserDAO();

@@ -1,9 +1,8 @@
-package server;
+package server.Handlers;
 
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
+import server.ResponseTypes.ErrorResponse;
+import server.SuccessResponse;
 import spark.Request;
 import spark.Response;
 import service.ClearDbService;
@@ -15,9 +14,9 @@ public class ClearDbHandler {
         this.clearDbService = new ClearDbService();
     }
 
-    public Object clearDatabases(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO){
+    public Object clearDatabases(Request request, Response response, UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO){
         try {
-            clearDbService.clearAllData(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
+            clearDbService.clearAllData(userDAO, authDAO, gameDAO);
             response.status(200);
             return new SuccessResponse("Successfully cleared databases").toJson();
         } catch (DataAccessException e){

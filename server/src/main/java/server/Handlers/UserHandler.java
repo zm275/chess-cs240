@@ -1,19 +1,17 @@
-package server;
+package server.Handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
+import server.ResponseTypes.BadRequestResponse;
+import server.ResponseTypes.LoginResponse;
+import server.ResponseTypes.RegisterResponse;
 import service.AuthenticationService;
 import service.UserService;
 import spark.Request;
 import spark.Response;
-import spark.Route;
-
-import javax.xml.crypto.Data;
 
 public class UserHandler {
     private final UserService userService;
@@ -27,7 +25,7 @@ public class UserHandler {
         this.authenticationService = new AuthenticationService();
     }
 
-    public Object registerNewUser(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) {
+    public Object registerNewUser(Request request, Response response, UserDAO userDAO, AuthDAO authDAO) {
         try {
             //deserialize request
             UserData userData = gson.fromJson(request.body(), UserData.class);
@@ -35,7 +33,7 @@ public class UserHandler {
             if (userData.username() == null || userData.password() == null || userData.email() == null) {
                 throw new JsonSyntaxException("Error: Null values in UserData");
             }
-            AuthData authData = userService.registerNewUser(userData, memoryUserDAO, memoryAuthDAO);
+            AuthData authData = userService.registerNewUser(userData, userDAO, authDAO);
             response.status(200);
             return new RegisterResponse(true, authData).toJson();
         } catch (JsonSyntaxException j) {
@@ -47,13 +45,13 @@ public class UserHandler {
         }
     }
     //returns a new authtoken
-    public Object loginUser(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) {
+    public Object loginUser(Request request, Response response, UserDAO userDAO, AuthDAO authDAO) {
         try {
             UserData userData = gson.fromJson(request.body(), UserData.class);
             if (userData.username() == null || userData.password() == null) {
                 throw new JsonSyntaxException("Error: Null values in UserData");
             }
-            AuthData authData = userService.loginUser(userData, memoryUserDAO, memoryAuthDAO);
+            AuthData authData = userService.loginUser(userData, userDAO, authDAO);
             response.status(200);
             return new LoginResponse(true, authData).toJson();
         } catch (JsonSyntaxException j) {
@@ -64,10 +62,10 @@ public class UserHandler {
             return new LoginResponse(false, e).toJson();
         }
     }
-    public Object logoutUser(Request request, Response response, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) {
+    public Object logoutUser(Request request, Response response, UserDAO userDAO, AuthDAO authDAO) {
         String authToken = request.headers("authorization");
         try {
-            userService.logoutUser(authToken, memoryAuthDAO);
+            userService.logoutUser(authToken, authDAO);
             response.status(200);
             return "";
         }

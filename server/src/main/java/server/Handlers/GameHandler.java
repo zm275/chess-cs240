@@ -1,18 +1,16 @@
-package server;
+package server.Handlers;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
+import dataAccess.*;
 import model.GameData;
-import model.UserData;
-import service.AuthenticationService;
+import server.ResponseTypes.BadRequestResponse;
+import server.ResponseTypes.CreateGameResponse;
+import server.ResponseTypes.JoinGameResponse;
+import server.ResponseTypes.ListGamesResponse;
 import service.GameService;
-import service.UserService;
 import spark.Request;
 import spark.Response;
 
@@ -26,12 +24,12 @@ public class GameHandler {
         this.gson = new Gson();
     }
 
-    public Object listGames(Request request, Response response, MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO) {
+    public Object listGames(Request request, Response response, AuthDAO authDAO, GameDAO gameDAO) {
         String authToken = request.headers("authorization");
         try {
-            memoryAuthDAO.isAuthorized(authToken);
+            authDAO.isAuthorized(authToken);
             response.status(200);
-            List<GameData> games = gameService.listGames(memoryGameDAO);
+            List<GameData> games = gameService.listGames(gameDAO);
             return new ListGamesResponse(true, games).toJson();
         }
         catch (DataAccessException e) {
@@ -39,13 +37,13 @@ public class GameHandler {
             return new ListGamesResponse(false, e).toJson();
         }
     }
-    public Object createGame(Request request, Response response, MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO) {
+    public Object createGame(Request request, Response response, AuthDAO authDAO, GameDAO gameDAO) {
         try {
             String authToken = request.headers("authorization");
             JsonObject jsonObject = gson.fromJson(request.body(), JsonObject.class);
             String gameName = jsonObject.get("gameName").getAsString();
-            memoryAuthDAO.isAuthorized(authToken);
-            int gameID = gameService.createGame(gameName, memoryGameDAO);
+            authDAO.isAuthorized(authToken);
+            int gameID = gameService.createGame(gameName, gameDAO);
             response.status(200);
             return new CreateGameResponse(true, gameID).toJson();
         }
@@ -63,7 +61,7 @@ public class GameHandler {
         }
     }
 
-    public Object joinGame(Request request, Response response, MemoryAuthDAO memoryAuthDAO, MemoryGameDAO memoryGameDAO) {
+    public Object joinGame(Request request, Response response, AuthDAO authDAO, GameDAO gameDAO) {
         try {
             String authToken = request.headers("authorization");
 
@@ -73,8 +71,8 @@ public class GameHandler {
             String playerColor = (playerColorElement != null && !playerColorElement.isJsonNull()) ? playerColorElement.getAsString() : "";
             int gameID = jsonObject.get("gameID").getAsInt();
 
-            memoryAuthDAO.isAuthorized(authToken);
-            gameService.joinGame(gameID, playerColor,authToken, memoryGameDAO,memoryAuthDAO);
+            authDAO.isAuthorized(authToken);
+            gameService.joinGame(gameID, playerColor,authToken, gameDAO,authDAO);
             response.status(200);
             return new JoinGameResponse(true).toJson();
         }

@@ -1,4 +1,4 @@
-package server;
+package server.ResponseTypes;
 
 import com.google.gson.Gson;
 

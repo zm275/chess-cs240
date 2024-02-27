@@ -1,28 +1,25 @@
 package service;
 
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
-import spark.Response;
 
 public class UserService {
     //returns UserAuth
-    public AuthData registerNewUser(UserData userData, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
-        memoryUserDAO.createUser(userData);
-        return memoryAuthDAO.createAuth(userData.username());
+    public AuthData registerNewUser(UserData userData, UserDAO userDAO, AuthDAO authDAO) throws DataAccessException {
+        userDAO.createUser(userData);
+        return authDAO.createAuth(userData.username());
     }
     // returns authToken String
-    public AuthData loginUser(UserData userData, MemoryUserDAO memoryUserDAO, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
-        boolean auth = memoryUserDAO.authenticate(userData);
+    public AuthData loginUser(UserData userData, UserDAO userDAO, AuthDAO authDAO) throws DataAccessException {
+        boolean auth = userDAO.authenticate(userData);
         if (auth){
-            return memoryAuthDAO.createAuth(userData.username());
+            return authDAO.createAuth(userData.username());
         }
         return null;
     }
-    public void logoutUser(String authToken, MemoryAuthDAO memoryAuthDAO) throws DataAccessException {
-        memoryAuthDAO.deleteAuth(authToken);
+    public void logoutUser(String authToken, AuthDAO authDAO) throws DataAccessException {
+        authDAO.deleteAuth(authToken);
     }
 
 
