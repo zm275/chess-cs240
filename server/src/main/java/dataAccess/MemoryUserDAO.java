@@ -13,6 +13,9 @@ public class MemoryUserDAO implements UserDAO{
     public MemoryUserDAO() {
         this.userDataMap = new HashMap<>();
     }
+    public Map<String, UserData> getUserDataMap() {
+        return this.userDataMap;
+    }
     @Override
     public void createUser(UserData userData) throws DataAccessException {
         if (userDataMap.containsKey(userData.username())){

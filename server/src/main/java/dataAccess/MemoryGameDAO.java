@@ -37,6 +37,11 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
+    public Map<Integer, GameData> getGameDataMap() {
+        return gameDataMap;
+    }
+
+    @Override
     public List<GameData> listGames() throws DataAccessException {
         return new ArrayList<>(gameDataMap.values());
     }
