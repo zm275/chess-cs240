@@ -38,6 +38,7 @@ public class GameService {
                 } else throw new DataAccessException("Error: BLACK player already exists", 403);
             }
             case "" -> {
+                //This mean that a person is just watching.
                 return;
             }
             //json was invalid

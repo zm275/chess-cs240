@@ -1,13 +1,18 @@
 package serviceTests;
 
+import com.google.gson.JsonSyntaxException;
 import dataAccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.ClearDbService;
 import service.GameService;
 import service.UserService;
+import chess.ChessGame;
+
 
 import javax.xml.crypto.Data;
 
@@ -143,6 +148,26 @@ public class ServiceTest {
         assertEquals(400, exception.getStatusCode());
     }
 
+    @Test
+    @DisplayName("valid join game")
+    public void JoinGame() throws DataAccessException {
+        start();
+        //create a game and user
+        AuthData userAuth = userService.registerNewUser(testUser,testUserDAO,testAuthDAO);
+        int gameId = gameService.createGame("TestGame",testGameDAO);
+        gameService.joinGame(gameId, "BLACK", userAuth.authToken(), testGameDAO,testAuthDAO);
+        GameData expectedGame = new GameData(gameId,null, userAuth.username(), "TestGame", testGameDAO.getGame(gameId).game());
+        assertEquals(testGameDAO.getGame(gameId), expectedGame);
+    }
 
-
+    @Test
+    @DisplayName("bad join game (invalid team input)")
+    public void BadJoinGame() throws DataAccessException {
+        start();
+        AuthData userAuth = userService.registerNewUser(testUser,testUserDAO,testAuthDAO);
+        int gameId = gameService.createGame("TestGame",testGameDAO);
+        assertThrows(JsonSyntaxException.class, () -> {
+            gameService.joinGame(gameId, "RED", userAuth.authToken(), testGameDAO,testAuthDAO);
+        });
+    }
 }

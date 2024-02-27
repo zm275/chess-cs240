@@ -22,7 +22,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public int createGame(String gameName) throws DataAccessException {
         //gameId that increments
-        if (gameName.isEmpty()){
+        if (gameName == null || gameName.isEmpty()){
             throw new DataAccessException("Blank Game Name", 400);
         }
         GameData gameData = new GameData(getNextGameId(),null, null, gameName, new ChessGame());
