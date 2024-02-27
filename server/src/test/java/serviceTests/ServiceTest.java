@@ -99,7 +99,35 @@ public class ServiceTest {
             userService.logoutUser("1234badauthtoken", testAuthDAO);
         });
     }
+    @Test
+    @DisplayName("valid list games")
+    public void ListGames() throws DataAccessException {
+        start();
+        testGameDAO.createGame("coolGame");
+        testGameDAO.createGame("coolGame1");
+        testGameDAO.createGame("coolGame2");
+        testGameDAO.createGame("coolGame3");
 
+        assertDoesNotThrow(() -> {
+            testGameDAO.listGames();
+        });
+    }
+
+    @Test
+    @DisplayName("bad valid list games")
+    public void BadListGames() throws DataAccessException {
+        start();
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            testGameDAO.listGames();
+        });
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("create new game")
+    public void CreateGame() throws DataAccessException {
+
+    }
 
 
 }

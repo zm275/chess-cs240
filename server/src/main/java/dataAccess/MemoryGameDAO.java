@@ -43,6 +43,9 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public List<GameData> listGames() throws DataAccessException {
+        if (gameDataMap.isEmpty()) {
+            throw new DataAccessException("No games yet.", 404);
+        }
         return new ArrayList<>(gameDataMap.values());
     }
 
