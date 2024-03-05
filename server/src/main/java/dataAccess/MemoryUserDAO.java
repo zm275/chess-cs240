@@ -25,13 +25,6 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
-        if (!userDataMap.containsKey(username)) {
-            throw new DataAccessException("Error: User not found", 401);
-        }
-        return userDataMap.get(username);
-    }
-    @Override
     public boolean authenticate(UserData userData) throws DataAccessException {
         String providedUsername = userData.username();
         String providedPassword = userData.password();
@@ -45,23 +38,6 @@ public class MemoryUserDAO implements UserDAO{
         else {
             throw new DataAccessException("Error: Incorrect password.", 401);
         }
-    }
-
-
-    @Override
-    public void updateUser(UserData userData) throws DataAccessException {
-        if (!userDataMap.containsKey(userData.username())) {
-            throw new DataAccessException("Error: User not found", 401);
-        }
-        userDataMap.put(userData.username(), userData);
-    }
-
-    @Override
-    public void deleteUser(String username) throws DataAccessException {
-        if (!userDataMap.containsKey(username)) {
-            throw new DataAccessException("Error: User not found", 401);
-        }
-        userDataMap.remove(username);
     }
 
     @Override

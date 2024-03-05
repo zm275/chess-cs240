@@ -32,11 +32,6 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void deleteGame(int gameID) throws DataAccessException {
-
-    }
-
-    @Override
     public void clear() throws DataAccessException {
 
     }
