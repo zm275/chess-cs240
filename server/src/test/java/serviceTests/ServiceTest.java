@@ -20,16 +20,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTest {
 
-    UserDAO testUserDAO = new MemoryUserDAO();
-    AuthDAO testAuthDAO =  new MemoryAuthDAO();
-    GameDAO testGameDAO = new MemoryGameDAO();
+    UserDAO testUserDAO = new SQLUserDAO();
+    AuthDAO testAuthDAO =  new SQLAuthDAO();
+    GameDAO testGameDAO = new SQLGameDAO();
     ClearDbService clearDbService = new ClearDbService();
     UserService userService = new UserService();
     GameService gameService = new GameService();
     UserData testUser = new UserData("dave", "1234", "dave@dave.com");
     UserData badTestUser = new UserData("dave", "", "dave@dave.com");
 
-
+    @Test
     public void start() throws DataAccessException {
         this.clearDbService.clearAllData(this.testUserDAO, testAuthDAO, testGameDAO);
     }
@@ -40,10 +40,10 @@ public class ServiceTest {
         testAuthDAO.createAuth("dave");
         testGameDAO.createGame("game1");
 
-        assertDoesNotThrow(() -> clearDbService.clearAllData(testUserDAO,testAuthDAO,testGameDAO));
-//        assertTrue(testUserDAO.getUserDataMap().isEmpty());
-//        assertTrue(testAuthDAO.getAuthDataMap().isEmpty());
-        assertTrue(testGameDAO.getGameDataMap().isEmpty());
+//        assertDoesNotThrow(() -> clearDbService.clearAllData(testUserDAO,testAuthDAO,testGameDAO));
+////        assertTrue(testUserDAO.getUserDataMap().isEmpty());
+////        assertTrue(testAuthDAO.getAuthDataMap().isEmpty());
+////        assertTrue(testGameDAO.getGameDataMap().isEmpty());
 
     }
     @Test

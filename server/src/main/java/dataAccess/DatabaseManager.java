@@ -34,7 +34,7 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-
+    //this might need to go called from the DAOs for the autograder
     public static void createDatabase() throws DataAccessException {
         try {
             // Create database if not exists
@@ -51,7 +51,7 @@ public class DatabaseManager {
                 }
 
                 // Create game table
-                try (PreparedStatement preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS game (gameID INT AUTO_INCREMENT PRIMARY KEY, whiteUsername VARCHAR(255) NOT NULL, blackUsername VARCHAR(255) NOT NULL, gameName VARCHAR(255) NOT NULL, game VARCHAR(255) NOT NULL)")) {
+                try (PreparedStatement preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS game (gameID INT AUTO_INCREMENT PRIMARY KEY, whiteUsername VARCHAR(255) , blackUsername VARCHAR(255) , gameName VARCHAR(255) NOT NULL, game JSON NOT NULL)")) {
                     preparedStatement.executeUpdate();
                 }
 

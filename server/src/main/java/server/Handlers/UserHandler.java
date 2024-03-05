@@ -1,6 +1,7 @@
 package server.Handlers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.*;
 import model.AuthData;
@@ -67,7 +68,7 @@ public class UserHandler {
         try {
             userService.logoutUser(authToken, authDAO);
             response.status(200);
-            return "";
+            return gson.toJson(new JsonObject());
         }
         catch (DataAccessException e) {
             response.status(e.getStatusCode());

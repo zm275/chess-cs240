@@ -24,7 +24,7 @@ public class SQLUserDAO implements UserDAO{
             preparedStatement.setString(3,userData.email());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), 401);
+            throw new DataAccessException("Error: " + e.getMessage(), 403);
         }
     }
 
@@ -32,7 +32,6 @@ public class SQLUserDAO implements UserDAO{
     public boolean authenticate(UserData userData) throws DataAccessException {
         String providedUsername = userData.username();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode(userData.password());
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
                      "SELECT password FROM user WHERE username = ?")) {
@@ -41,18 +40,19 @@ public class SQLUserDAO implements UserDAO{
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 //checks if there is a row in the result set
                 if (resultSet.next()) {
-                    if (Objects.equals(resultSet.getString("password"), hashedPassword)) {
+                    String storedPassword = resultSet.getString("password");
+                    if (encoder.matches(userData.password(),storedPassword)) {
                         return true;
                     }
                     else {
-                        throw new DataAccessException("Error: invalid password", 403);
+                        throw new DataAccessException("Error: invalid password", 401);
                     }
                 } else {
-                    throw new DataAccessException("Error: User not found in database", 404);
+                    throw new DataAccessException("Error: User not found in database", 401);
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(),404);
+            throw new DataAccessException("Error: " + e.getMessage(), 401);
         }
     }
 
@@ -62,7 +62,7 @@ public class SQLUserDAO implements UserDAO{
              PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM user")) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), 401);
+            throw new DataAccessException("Error: " + e.getMessage(), 401);
         }
     }
 }

@@ -22,11 +22,11 @@ public class SQLAuthDAO implements AuthDAO{
             preparedStatement.setString(2, username);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), 403);
+            throw new DataAccessException("Error: " + e.getMessage(), 403);
         }
         return new AuthData(authToken, username);
     }
-    //returns authdata
+
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
         String username;
@@ -44,28 +44,54 @@ public class SQLAuthDAO implements AuthDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(),404);
+            throw new DataAccessException("Error: " + e.getMessage(), 404);
         }
         return new AuthData(authToken, username);
     }
 
     @Override
     public boolean isAuthorized(String authToken) throws DataAccessException {
-        return false;
+        //check if the authtoken is in the db
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM auth WHERE authToken = ?")) {
+            preparedStatement.setString(1, authToken);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                //checks if there is a row in the result set
+                if (resultSet.next()) {
+                    return true;
+                } else {
+                    throw new DataAccessException("Error: User not found in database", 404);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage(), 404);
+        }
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "DELETE FROM auth WHERE authToken = ?")) {
+            preparedStatement.setString(1, authToken);
+            int rowsEffected = preparedStatement.executeUpdate();
+            if (rowsEffected == 0){
+                throw new DataAccessException("Error: unauthorized", 401);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage(), 403);
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM auth")) {
-            preparedStatement.executeUpdate();
+    try (Connection connection = DatabaseManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM auth")) {
+         preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(), 401);
+        throw new DataAccessException("Error: " + e.getMessage(), 401);
         }
     }
 }
