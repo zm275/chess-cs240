@@ -6,6 +6,9 @@ import server.Handlers.GameHandler;
 import server.Handlers.UserHandler;
 import spark.*;
 
+
+import javax.xml.crypto.Data;
+
 import static spark.Spark.staticFiles;
 
 public class Server {
@@ -14,15 +17,21 @@ public class Server {
     private final AuthDAO authDAO;
 
     public Server() {
-        this.userDAO = new MemoryUserDAO();
-        this.gameDAO = new MemoryGameDAO();
-        this.authDAO = new MemoryAuthDAO();
+        this.userDAO = new SQLUserDAO();
+        this.gameDAO = new SQLGameDAO();
+        this.authDAO = new SQLAuthDAO();
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         staticFiles.location("web");
-
+        try {
+            // Initialize the database and create tables if they do not exist
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            System.err.println("Error initializing database: " + e.getMessage());
+            return -1;
+        }
         // Register your endpoints and handle exceptions here.
 
         Spark.delete("/db", (req, res) -> new ClearDbHandler().clearDatabases(req,res,userDAO, authDAO, gameDAO));

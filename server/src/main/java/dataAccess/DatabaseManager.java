@@ -34,17 +34,37 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+
+    public static void createDatabase() throws DataAccessException {
         try {
-            var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
-            var conn = DriverManager.getConnection(connectionUrl, user, password);
-            try (var preparedStatement = conn.prepareStatement(statement)) {
+            // Create database if not exists
+            try (Connection conn = DriverManager.getConnection(connectionUrl, user, password);
+                 PreparedStatement preparedStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS " + databaseName)) {
                 preparedStatement.executeUpdate();
+            }
+
+            // Connect to the database
+            try (Connection conn = DriverManager.getConnection(connectionUrl + "/" + databaseName, user, password)) {
+                // Create auth table
+                try (PreparedStatement preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS auth (authToken VARCHAR(255) PRIMARY KEY, username VARCHAR(255) NOT NULL)")) {
+                    preparedStatement.executeUpdate();
+                }
+
+                // Create game table
+                try (PreparedStatement preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS game (gameID INT AUTO_INCREMENT PRIMARY KEY, whiteUsername VARCHAR(255) NOT NULL, blackUsername VARCHAR(255) NOT NULL, gameName VARCHAR(255) NOT NULL, game VARCHAR(255) NOT NULL)")) {
+                    preparedStatement.executeUpdate();
+                }
+
+                // Create user table
+                try (PreparedStatement preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS user (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL)")) {
+                    preparedStatement.executeUpdate();
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage(), 401);
         }
     }
+
 
     /**
      * Create a connection to the database and sets the catalog based upon the
