@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +27,11 @@ public class SQLGameDAO implements GameDAO{
         ChessGame game = new ChessGame();
         Gson gson = new Gson();
         String chessGameJson = gson.toJson(game); //serialize game
+        int gameID = getNextGameId();
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
                      "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES ( ?, ?, ?, ?, ?)")) {
-            preparedStatement.setInt(1, getNextGameId());
+            preparedStatement.setInt(1, gameID);
             preparedStatement.setString(2, null);
             preparedStatement.setString(3, null);
             preparedStatement.setString(4, gameName);
@@ -38,7 +40,7 @@ public class SQLGameDAO implements GameDAO{
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage(), 403);
         }
-        return 0;
+        return gameID;
     }
 
     @Override
@@ -62,11 +64,11 @@ public class SQLGameDAO implements GameDAO{
                     return new GameData(gameId, whiteUsername, blackUsername, gameName, chessGame);
 
                 } else {
-                    throw new DataAccessException("Error: Game not found in database", 404);
+                    throw new DataAccessException("Error: Game not found in database", 400);
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage(),404);
+            throw new DataAccessException(e.getMessage(),400);
         }
     }
 
@@ -77,12 +79,50 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public List<GameData> listGames() throws DataAccessException {
-        return null;
+        ArrayList<GameData> games = new ArrayList<GameData>();
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "SELECT * FROM game")) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                //checks if there is a row in the result set
+                while (resultSet.next()) {
+                    int gameId = resultSet.getInt("gameID");
+                    String whiteUsername = resultSet.getString("whiteUsername");
+                    String blackUsername = resultSet.getString("blackUsername");
+                    String gameName = resultSet.getString("gameName");
+                    String gameJson = resultSet.getString("game");
+                    //deserialize game
+                    Gson gson = new Gson();
+                    ChessGame chessGame = gson.fromJson(gameJson, ChessGame.class);
+                    games.add(new GameData(gameId, whiteUsername, blackUsername, gameName, chessGame));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage(),404);
+        }
+        return games;
     }
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
+        Gson gson = new Gson();
+        String chessGameJson = gson.toJson(gameData.game());
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "UPDATE game SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?")) {
+            preparedStatement.setString(1, gameData.whiteUsername());
+            preparedStatement.setString(2, gameData.blackUsername());
+            preparedStatement.setString(3, gameData.gameName());
+            preparedStatement.setString(4, chessGameJson);
+            preparedStatement.setInt(5, gameData.gameID());
 
+            int rowAffected = preparedStatement.executeUpdate();
+            if (rowAffected == 0) {
+                throw new DataAccessException("Error: game not found.", 400);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: " + e.getMessage(), 401);
+        }
     }
 
     @Override

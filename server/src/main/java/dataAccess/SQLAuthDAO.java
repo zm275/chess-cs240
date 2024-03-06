@@ -62,11 +62,11 @@ public class SQLAuthDAO implements AuthDAO{
                 if (resultSet.next()) {
                     return true;
                 } else {
-                    throw new DataAccessException("Error: User not found in database", 404);
+                    throw new DataAccessException("Error: Not authorized", 401);
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: " + e.getMessage(), 404);
+            throw new DataAccessException("Error: " + e.getMessage(), 401);
         }
     }
 
@@ -76,8 +76,8 @@ public class SQLAuthDAO implements AuthDAO{
              PreparedStatement preparedStatement = connection.prepareStatement(
                      "DELETE FROM auth WHERE authToken = ?")) {
             preparedStatement.setString(1, authToken);
-            int rowsEffected = preparedStatement.executeUpdate();
-            if (rowsEffected == 0){
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0){
                 throw new DataAccessException("Error: unauthorized", 401);
             }
         } catch (SQLException e) {
