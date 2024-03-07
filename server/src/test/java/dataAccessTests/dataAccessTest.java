@@ -141,6 +141,15 @@ public class dataAccessTest {
     @Test
     @DisplayName("add game to db")
     public void addGame() throws DataAccessException {
-        testGameDAO.createGame("chicken");
+        start();
+        assertDoesNotThrow(() ->    testGameDAO.createGame("chicken"));
     }
+    @Test
+    @DisplayName("add game to db fail")
+    public void failAddGame() throws DataAccessException {
+        start();
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testGameDAO.createGame(""));
+        assertEquals(400, exception.getStatusCode());
+    }
+
 }
