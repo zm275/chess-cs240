@@ -36,15 +36,10 @@ public class ServiceTest {
 
     @Test
     public void testClearAllData() throws DataAccessException {
-        testUserDAO.createUser(new UserData("dave", "1234", "dave@gmail.com"));
+        testUserDAO.createUser(new UserData("dave0000", "1234", "dave@gmail.com"));
         testAuthDAO.createAuth("dave");
         testGameDAO.createGame("game1");
-
-//        assertDoesNotThrow(() -> clearDbService.clearAllData(testUserDAO,testAuthDAO,testGameDAO));
-////        assertTrue(testUserDAO.getUserDataMap().isEmpty());
-////        assertTrue(testAuthDAO.getAuthDataMap().isEmpty());
-////        assertTrue(testGameDAO.getGameDataMap().isEmpty());
-
+        assertDoesNotThrow(() -> clearDbService.clearAllData(testUserDAO,testAuthDAO,testGameDAO));
     }
     @Test
     @DisplayName("valid registration")
@@ -62,9 +57,9 @@ public class ServiceTest {
     @DisplayName("invalid registration")
     public void failRegisterNewUser() throws DataAccessException {
         start();
-        UserData user = new UserData(null,null,null);
-        AuthData authData = userService.registerNewUser(user, testUserDAO, testAuthDAO);
-        assertFalse(authData.username() != null && !authData.username().isEmpty());
+        UserData user = new UserData(null,"123",null);
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> userService.registerNewUser(user, testUserDAO, testAuthDAO));
+        assertEquals(403, exception.getStatusCode());
     }
 
     @Test
