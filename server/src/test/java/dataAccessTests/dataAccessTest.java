@@ -66,6 +66,77 @@ public class dataAccessTest {
         assertEquals(401, exception.getStatusCode());
     }
 
+    @Test
+    @DisplayName("create auth")
+    public void createAuth() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        assertDoesNotThrow(() -> testAuthDAO.createAuth(testUser.username()));
+    }
+    @Test
+    @DisplayName("bad create auth")
+    public void badCreateAuth() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testAuthDAO.createAuth(null));
+        assertEquals(403, exception.getStatusCode());
+    }
+    @Test
+    @DisplayName("get auth")
+    public void getAuth() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        String authToken = testAuthDAO.createAuth(testUser.username()).authToken();
+        assertDoesNotThrow(() -> testAuthDAO.getAuth(authToken));
+    }
+    @Test
+    @DisplayName("bad get auth")
+    public void badGetAuth() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        String authToken = testAuthDAO.createAuth(testUser.username()).authToken();
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testAuthDAO.getAuth(null));
+        assertEquals(404, exception.getStatusCode());
+    }
+    @Test
+    @DisplayName("auth authToken")
+    public void isAuthorized() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        String authToken = testAuthDAO.createAuth(testUser.username()).authToken();
+         boolean auth = testAuthDAO.isAuthorized(authToken);
+         assertTrue(auth);
+    }
+    @Test
+    @DisplayName("auth bad authToken")
+    public void isNotAuthorized() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        String authToken = testAuthDAO.createAuth(testUser.username()).authToken();
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testAuthDAO.isAuthorized(null));
+        assertEquals(401, exception.getStatusCode());
+    }
+    @Test
+    @DisplayName("delete authToken")
+    public void logout() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        String authToken = testAuthDAO.createAuth(testUser.username()).authToken();
+        boolean auth = testAuthDAO.isAuthorized(authToken);
+        assertTrue(auth);
+        testAuthDAO.deleteAuth(authToken);
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testAuthDAO.isAuthorized(authToken));
+        assertEquals(401, exception.getStatusCode());
+    }
+    @Test
+    @DisplayName("logout bad authToken")
+    public void badLogout() throws DataAccessException {
+        start();
+        testUserDAO.createUser(testUser);
+        String authToken = testAuthDAO.createAuth(testUser.username()).authToken();
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testAuthDAO.deleteAuth("12345"));
+        assertEquals(401, exception.getStatusCode());
+    }
 
     @Test
     @DisplayName("add game to db")
