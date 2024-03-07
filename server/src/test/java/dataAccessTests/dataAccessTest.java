@@ -151,5 +151,19 @@ public class dataAccessTest {
         DataAccessException exception = assertThrows(DataAccessException.class, () -> testGameDAO.createGame(""));
         assertEquals(400, exception.getStatusCode());
     }
+    @Test
+    @DisplayName("get game")
+    public void getGame() throws DataAccessException {
+        start();
+        int gameID = testGameDAO.createGame("chicken");
+        assertDoesNotThrow(() -> testGameDAO.getGame(gameID));
+    }
+    @Test
+    @DisplayName("get game fail")
+    public void failGetGame() throws DataAccessException {
+        start();
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testGameDAO.getGame(0));
+        assertEquals(400, exception.getStatusCode());
+    }
 
 }
