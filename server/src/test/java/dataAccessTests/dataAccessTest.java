@@ -204,5 +204,20 @@ public class dataAccessTest {
         List<GameData> dbGames = testGameDAO.listGames();
         assertNotEquals(games, dbGames);
     }
-
+    @Test
+    @DisplayName("update game")
+    public void updateGame() throws DataAccessException {
+        start();
+        testGameDAO.createGame("game12");
+        testGameDAO.updateGame(new GameData(1, "steve", null, "game12", new ChessGame()));
+        assertEquals(new GameData(1, "steve", null, "game12", new ChessGame()), testGameDAO.getGame(1));
+    }
+    @Test
+    @DisplayName("bad update game")
+    public void badUpdateGame() throws DataAccessException {
+        start();
+        testGameDAO.createGame("game12");
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> testGameDAO.updateGame(new GameData(1, "steve", null, null, new ChessGame())));
+        assertEquals(401, exception.getStatusCode());
+    }
 }
