@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SQLGameDAO implements GameDAO{
-    private int nextGameId = 1;
+    private int nextGameId = 0;
 
     public int getNextGameId() {
         this.nextGameId += 1;
@@ -70,11 +70,6 @@ public class SQLGameDAO implements GameDAO{
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage(),400);
         }
-    }
-
-    @Override
-    public Map<Integer, GameData> getGameDataMap() {
-        return null;
     }
 
     @Override

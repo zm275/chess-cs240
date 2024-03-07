@@ -1,6 +1,8 @@
 package dataAccessTests;
 
+import chess.ChessGame;
 import dataAccess.*;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,9 @@ import service.GameService;
 import service.UserService;
 
 import javax.xml.crypto.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +27,7 @@ public class dataAccessTest {
     UserData testUser = new UserData("dave", "1234", "dave@dave.com");
     UserData badTestUser = new UserData("dave", "", "dave@dave.com");
     UserData nullTestUser = new UserData("dave", null, "dave@dave.com");
+
 
 
     public void start() throws DataAccessException {
@@ -142,7 +148,7 @@ public class dataAccessTest {
     @DisplayName("add game to db")
     public void addGame() throws DataAccessException {
         start();
-        assertDoesNotThrow(() ->    testGameDAO.createGame("chicken"));
+        assertDoesNotThrow(() -> testGameDAO.createGame("chicken"));
     }
     @Test
     @DisplayName("add game to db fail")
@@ -164,6 +170,39 @@ public class dataAccessTest {
         start();
         DataAccessException exception = assertThrows(DataAccessException.class, () -> testGameDAO.getGame(0));
         assertEquals(400, exception.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("List multiple games")
+    public void listGames() throws DataAccessException {
+        start();
+        List<GameData> games = new ArrayList<GameData>();
+        testGameDAO.createGame("game1");
+        games.add(new GameData(1,null,null,"game1", new ChessGame()));
+        testGameDAO.createGame("game2");
+        games.add(new GameData(2,null,null,"game2", new ChessGame()));
+        testGameDAO.createGame("game3");
+        games.add(new GameData(3,null,null,"game3", new ChessGame()));
+        testGameDAO.createGame("game4");
+        games.add(new GameData(4,null,null,"game4", new ChessGame()));
+
+        List<GameData> dbGames = testGameDAO.listGames();
+        assertEquals(games, dbGames);
+    }
+    @Test
+    @DisplayName("Bad List multiple games")
+    public void badListGames() throws DataAccessException {
+        start();
+        List<GameData> games = new ArrayList<GameData>();
+        testGameDAO.createGame("game1");
+        games.add(new GameData(1,null,null,"game1", new ChessGame()));
+        testGameDAO.createGame("game2");
+        games.add(new GameData(2,null,null,"game2", new ChessGame()));
+        testGameDAO.createGame("game3");
+        games.add(new GameData(3,null,null,"game3", new ChessGame()));
+        games.add(new GameData(4,null,null,"game4", new ChessGame()));
+        List<GameData> dbGames = testGameDAO.listGames();
+        assertNotEquals(games, dbGames);
     }
 
 }
