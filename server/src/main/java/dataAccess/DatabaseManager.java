@@ -12,6 +12,7 @@ public class DatabaseManager {
     /*
      * Load the database information for the db.properties file.
      */
+    //test
     static {
         try {
             try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
