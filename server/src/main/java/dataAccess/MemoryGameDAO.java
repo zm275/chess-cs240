@@ -1,4 +1,5 @@
 package dataAccess;
+import ResponseTypes.DataAccessException;
 import chess.ChessGame;
 import model.GameData;
 

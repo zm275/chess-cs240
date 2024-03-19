@@ -1,7 +1,7 @@
-package server.ResponseTypes;
+package ResponseTypes;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
+
 import model.AuthData;
 
 

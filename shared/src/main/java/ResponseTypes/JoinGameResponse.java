@@ -1,6 +1,5 @@
-package server.ResponseTypes;
+package ResponseTypes;
 
-import dataAccess.DataAccessException;
 
 
 public class JoinGameResponse extends Response {

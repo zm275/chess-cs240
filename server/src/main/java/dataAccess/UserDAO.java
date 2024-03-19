@@ -1,8 +1,6 @@
 package dataAccess;
+import ResponseTypes.DataAccessException;
 import model.UserData;
-
-import javax.xml.crypto.Data;
-import java.util.Map;
 
 public interface UserDAO {
     void createUser(UserData userData) throws DataAccessException;

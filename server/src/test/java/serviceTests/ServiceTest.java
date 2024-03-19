@@ -1,20 +1,17 @@
 package serviceTests;
 
+import ResponseTypes.DataAccessException;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.ClearDbService;
 import service.GameService;
 import service.UserService;
-import chess.ChessGame;
 
-
-import javax.xml.crypto.Data;
 
 import static org.junit.jupiter.api.Assertions.*;
 

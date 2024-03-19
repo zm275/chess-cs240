@@ -1,8 +1,8 @@
 package dataAccess;
 
 import java.util.List;
-import java.util.Map;
 
+import ResponseTypes.DataAccessException;
 import model.GameData;
 
 public interface GameDAO {

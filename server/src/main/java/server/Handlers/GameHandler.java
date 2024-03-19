@@ -1,15 +1,13 @@
 package server.Handlers;
 
+import ResponseTypes.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.*;
 import model.GameData;
-import server.ResponseTypes.BadRequestResponse;
-import server.ResponseTypes.CreateGameResponse;
-import server.ResponseTypes.JoinGameResponse;
-import server.ResponseTypes.ListGamesResponse;
+
 import service.GameService;
 import spark.Request;
 import spark.Response;

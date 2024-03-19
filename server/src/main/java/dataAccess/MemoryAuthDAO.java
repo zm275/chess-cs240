@@ -1,4 +1,5 @@
 package dataAccess;
+import ResponseTypes.DataAccessException;
 import model.AuthData;
 import java.util.HashMap;
 import java.util.Map;

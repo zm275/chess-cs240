@@ -1,8 +1,10 @@
 package server.Handlers;
 
+import ResponseTypes.DataAccessException;
+import ResponseTypes.ErrorResponse;
 import dataAccess.*;
-import server.ResponseTypes.ErrorResponse;
-import server.SuccessResponse;
+
+import ResponseTypes.SuccessResponse;
 import spark.Request;
 import spark.Response;
 import service.ClearDbService;

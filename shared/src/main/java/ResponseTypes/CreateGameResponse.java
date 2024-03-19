@@ -1,7 +1,4 @@
-package server.ResponseTypes;
-
-import dataAccess.DataAccessException;
-
+package ResponseTypes;
 
 public class CreateGameResponse extends Response {
     Integer gameID;

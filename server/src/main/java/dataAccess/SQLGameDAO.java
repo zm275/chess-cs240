@@ -1,5 +1,6 @@
 package dataAccess;
 
+import ResponseTypes.DataAccessException;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
@@ -10,8 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class SQLGameDAO implements GameDAO{
     private int nextGameId = 0;

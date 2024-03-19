@@ -1,5 +1,6 @@
 package dataAccessTests;
 
+import ResponseTypes.DataAccessException;
 import chess.ChessGame;
 import dataAccess.*;
 import model.GameData;
@@ -9,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import service.ClearDbService;
 import service.GameService;
 import service.UserService;
-
-import javax.xml.crypto.Data;
 
 import java.util.ArrayList;
 import java.util.List;

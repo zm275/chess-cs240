@@ -1,12 +1,12 @@
 package dataAccess;
 
+import ResponseTypes.DataAccessException;
 import model.AuthData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.UUID;
 
 public class SQLAuthDAO implements AuthDAO{

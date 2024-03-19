@@ -1,6 +1,5 @@
-package server.ResponseTypes;
+package ResponseTypes;
 
-import dataAccess.DataAccessException;
 import model.GameData;
 
 import java.util.List;

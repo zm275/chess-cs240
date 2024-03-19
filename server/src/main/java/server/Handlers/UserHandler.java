@@ -1,14 +1,16 @@
 package server.Handlers;
 
+import ResponseTypes.BadRequestResponse;
+import ResponseTypes.DataAccessException;
+import ResponseTypes.LoginResponse;
+import ResponseTypes.RegisterResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dataAccess.*;
 import model.AuthData;
 import model.UserData;
-import server.ResponseTypes.BadRequestResponse;
-import server.ResponseTypes.LoginResponse;
-import server.ResponseTypes.RegisterResponse;
+
 import service.AuthenticationService;
 import service.UserService;
 import spark.Request;

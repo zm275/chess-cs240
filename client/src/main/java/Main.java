@@ -18,10 +18,8 @@ import java.util.Scanner;
 import static chess.ChessGame.TeamColor.BLACK;
 
 public class Main {
-    private static final String USERNAME = "admin";
-    private static final String PASSWORD = "password";
+    private static String authToken;
     private static final String ENDPOINT_URL = "http://localhost:8080";
-
 
     private static boolean loggedIn = false;
 

@@ -1,4 +1,4 @@
-package server.ResponseTypes;
+package ResponseTypes;
 
 
 public class BadRequestResponse extends Response {

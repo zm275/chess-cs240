@@ -1,8 +1,6 @@
 package dataAccess;
+import ResponseTypes.DataAccessException;
 import model.AuthData;
-
-import javax.xml.crypto.Data;
-import java.util.Map;
 
 public interface AuthDAO {
     AuthData createAuth(String username) throws DataAccessException;

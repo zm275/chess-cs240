@@ -1,16 +1,12 @@
 package service;
 
-import chess.ChessGame;
 import com.google.gson.JsonSyntaxException;
-import dataAccess.DataAccessException;
+import ResponseTypes.DataAccessException;
 import dataAccess.AuthDAO;
 import dataAccess.GameDAO;
-import dataAccess.MemoryUserDAO;
 import model.GameData;
 
-import javax.xml.crypto.Data;
 import java.util.List;
-import java.util.Objects;
 
 public class GameService {
     public List<GameData> listGames(GameDAO gameDAO) throws DataAccessException {

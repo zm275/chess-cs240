@@ -1,5 +1,6 @@
 package dataAccess;
 
+import ResponseTypes.DataAccessException;
 import model.UserData;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -7,8 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.Objects;
 
 public class SQLUserDAO implements UserDAO{
     @Override

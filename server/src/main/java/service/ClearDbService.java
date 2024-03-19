@@ -1,5 +1,6 @@
 package service;
 
+import ResponseTypes.DataAccessException;
 import dataAccess.*;
 
 public class ClearDbService {

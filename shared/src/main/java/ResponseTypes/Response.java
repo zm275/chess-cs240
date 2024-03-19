@@ -1,13 +1,6 @@
-package server.ResponseTypes;
+package ResponseTypes;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
-import model.AuthData;
-import model.GameData;
-import org.eclipse.jetty.util.log.Log;
-
-import javax.xml.crypto.Data;
-import java.util.List;
 
 class Response {
     transient boolean success;

@@ -1,5 +1,6 @@
 package service;
 
+import ResponseTypes.DataAccessException;
 import dataAccess.*;
 import model.AuthData;
 import model.UserData;

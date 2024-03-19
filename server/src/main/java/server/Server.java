@@ -1,13 +1,12 @@
 package server;
 
+import ResponseTypes.DataAccessException;
 import dataAccess.*;
 import server.Handlers.ClearDbHandler;
 import server.Handlers.GameHandler;
 import server.Handlers.UserHandler;
 import spark.*;
 
-
-import javax.xml.crypto.Data;
 
 import static spark.Spark.staticFiles;
 
