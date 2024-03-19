@@ -1,6 +1,9 @@
+import ResponseTypes.LoginResponse;
+import ResponseTypes.RegisterResponse;
 import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import spark.Request;
@@ -19,6 +22,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 
 public class Main {
     private static String authToken;
+    private static String userName;
     private static final String ENDPOINT_URL = "http://localhost:8080";
 
     private static boolean loggedIn = false;
@@ -28,7 +32,6 @@ public class Main {
         System.out.println("Welcome to 240 Chess! Enter 1 to the console to access help menu.");
         while (true) {
             if (!loggedIn) {
-                System.out.println("Enter 1 to the console to access help menu.");
                 System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
                 int choice = scanner.nextInt();
                 scanner.nextLine();
@@ -44,7 +47,7 @@ public class Main {
                         preLogin(scanner);
                         break;
                     case 4:
-                        register(scanner);
+                        preRegister(scanner);
                         break;
                     case 5:
                         printBoard();
@@ -57,48 +60,6 @@ public class Main {
             }
         }
     }
-
-    private static void preLogin(Scanner scanner) throws IOException {
-        System.out.println("Enter your username: ");
-        String username = scanner.nextLine();
-
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
-
-        URL url = new URL(ENDPOINT_URL + "/session");
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-
-        // Create request body
-        String requestBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
-
-        connection.connect();
-
-        try (OutputStream requestBodyStream = connection.getOutputStream()) {
-            byte[] input = requestBody.getBytes("utf-8");
-            requestBodyStream.write(input, 0, input.length);
-        }
-
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            System.out.println("Login successful!");
-            loggedIn = true;
-
-        } else {
-            // SERVER RETURNED AN HTTP ERROR
-            InputStream responseBody = connection.getErrorStream();
-            try {
-                // Process the error response body
-                processErrorResponseBody(responseBody);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
     private static void loggedInPhase(Scanner scanner) {
         System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
         int choice = scanner.nextInt();
@@ -146,8 +107,23 @@ public class Main {
                 System.out.println("Invalid choice. Please try again.");
         }
     }
+    private static void preLogin(Scanner scanner) throws IOException {
+        System.out.println("Enter your username: ");
+        String username = scanner.nextLine();
 
-    private static void register(Scanner scanner) throws IOException {
+        System.out.println("Enter your password: ");
+        String password = scanner.nextLine();
+        LoginResponse result = ServerFacade.Login(username, password);
+        if (result != null && result.getAuthToken() != null && !result.getAuthToken().isEmpty()) {
+            loggedIn = true;
+            userName = result.getUsername();
+            authToken = result.getAuthToken();
+            System.out.println("Login Successful");
+        } else {
+            System.out.println(result != null ? result.getMessage() : "Unknown error occurred.");
+        }
+    }
+    private static void preRegister(Scanner scanner) throws IOException {
         System.out.println("Enter your desired username: ");
         String username = scanner.nextLine();
 
@@ -158,32 +134,14 @@ public class Main {
         String email = scanner.nextLine();
 
         // If registration successful, login user and transition to Postlogin UI
-        URL url = new URL(ENDPOINT_URL + "/user");
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-
-        String requestBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\", \"email\":\"" + email + "\"}";
-
-        connection.connect();
-
-        try (OutputStream requestBodyStream = connection.getOutputStream()) {
-            byte[] input = requestBody.getBytes("utf-8");
-            requestBodyStream.write(input, 0, input.length);
-        }
-
-        if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+        RegisterResponse result = ServerFacade.registerUser(username, password, email);
+        if (result != null && result.getAuthData() != null && result.getAuthData().authToken() != null && !result.getAuthData().authToken().isEmpty()) {
+            loggedIn =  true;
+            userName = result.getAuthData().username();
+            authToken = result.getAuthData().authToken();
             System.out.println("Registration successful!");
-            loggedIn = true;
         } else {
-            InputStream responseBody = connection.getErrorStream();
-            try {
-                processErrorResponseBody(responseBody);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println(result != null ? result.getMessage() : "Unknown error occurred.");
         }
 
     }
@@ -333,29 +291,5 @@ public class Main {
     }
     public static char mapNumberToChar(int number) {
         return (char) ('a' + number - 1);
-    }
-
-    private static void processErrorResponseBody(InputStream inputStream) throws IOException {
-        if (inputStream != null) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                String line;
-                StringBuilder responseBodyBuilder = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    responseBodyBuilder.append(line);
-                    responseBodyBuilder.append("\n");
-                }
-                String responseBody = responseBodyBuilder.toString();
-
-                // Print or process the error response body
-                String errorContent = extractErrorContentFromJson(responseBody);
-                System.out.println(errorContent);
-            }
-        } else {
-            System.out.println("No error response body available.");
-        }
-    }
-    private static String extractErrorContentFromJson(String jsonResponse) {
-        JsonElement jsonElement = JsonParser.parseString(jsonResponse);
-        return jsonElement.getAsJsonObject().get("message").getAsString();
     }
 }

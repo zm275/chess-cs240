@@ -15,6 +15,11 @@ public class RegisterResponse extends Response {
         this.success = success;
         message = e.getLocalizedMessage();
     }
+
+    public AuthData getAuthData() {
+        return authData;
+    }
+
     @Override
     public String toJson() {
         Gson gson = new Gson();

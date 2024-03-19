@@ -13,5 +13,13 @@ class Response {
         return gson.toJson(this);
 
     }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }
 

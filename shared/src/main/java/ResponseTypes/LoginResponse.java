@@ -16,4 +16,11 @@ public class LoginResponse extends Response {
         message = e.getLocalizedMessage();
     }
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public String getUsername() {
+        return username;
+    }
 }
