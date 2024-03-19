@@ -8,6 +8,10 @@ public class CreateGameResponse extends Response {
         this.gameID = gameID;
     }
 
+    public Integer getGameID() {
+        return gameID;
+    }
+
     public CreateGameResponse(boolean success, DataAccessException e) {
         this.success = success;
         this.message = e.getLocalizedMessage();

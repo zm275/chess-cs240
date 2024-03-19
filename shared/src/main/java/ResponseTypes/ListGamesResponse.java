@@ -16,4 +16,7 @@ public class ListGamesResponse extends Response {
         this.message = e.getLocalizedMessage();
     }
 
+    public List<GameData> getGames() {
+        return games;
+    }
 }

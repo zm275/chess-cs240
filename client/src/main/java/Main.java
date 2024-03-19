@@ -1,21 +1,17 @@
+import ResponseTypes.CreateGameResponse;
+import ResponseTypes.ListGamesResponse;
 import ResponseTypes.LoginResponse;
 import ResponseTypes.RegisterResponse;
+import model.GameData;
+import serverFacade.ServerFacade;
 import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import spark.Request;
 import ui.EscapeSequences;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
-import java.awt.*;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -60,7 +56,7 @@ public class Main {
             }
         }
     }
-    private static void loggedInPhase(Scanner scanner) {
+    private static void loggedInPhase(Scanner scanner) throws IOException {
         System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
         int choice = scanner.nextInt();
         scanner.nextLine();
@@ -75,17 +71,17 @@ public class Main {
                 System.out.println("6. Join Observer - Allows the user to specify which game they want to observe. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to verify that the specified game exists.");
                 break;
             case 2:
-                loggedIn = false;
-                // Call server logout API here
+                logout(authToken);
                 // Transition to Prelogin UI
                 break;
             case 3:
                 System.out.println("Enter the name for the new game:");
                 String gameName = scanner.nextLine();
-                // Call server create API here
+                createGame(gameName);
                 break;
             case 4:
-                // Call server list API to get all game data
+                // Call server API to get all game data
+                listAllGames();
                 // Display games with numbering
                 // Handle join/join observer based on user choice
                 break;
@@ -107,13 +103,48 @@ public class Main {
                 System.out.println("Invalid choice. Please try again.");
         }
     }
+
+    private static void listAllGames() throws IOException {
+        ListGamesResponse response = ServerFacade.listAllGames(authToken);
+        if (response.isSuccess()){
+            List<GameData> games = response.getGames();
+            System.out.println("You will use the gameID to join or watch a game.");
+            for (GameData game : games) {
+                System.out.println(game.gameID() + ": " + game.gameName());
+            }
+        }
+    }
+
+    private static void createGame(String gameName) throws IOException {
+        CreateGameResponse response = ServerFacade.createGame(gameName, authToken);
+        if (response != null && response.getGameID() != null) {
+            System.out.println("Successfully created game " + gameName);
+        } else if(response != null) {
+            System.out.println(response.getMessage());
+        }
+        else {
+            System.out.println("Unknown error.");
+        }
+    }
+
+    private static void logout(String authToken) throws IOException {
+        LoginResponse result = ServerFacade.logoutUser(authToken);
+        if (result.isSuccess()) {
+            loggedIn = false;
+            System.out.println("logout successful");
+        }
+        else {
+           System.out.println(result.getMessage());
+        }
+    }
+
     private static void preLogin(Scanner scanner) throws IOException {
         System.out.println("Enter your username: ");
         String username = scanner.nextLine();
 
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
-        LoginResponse result = ServerFacade.Login(username, password);
+        LoginResponse result = ServerFacade.loginUser(username, password);
         if (result != null && result.getAuthToken() != null && !result.getAuthToken().isEmpty()) {
             loggedIn = true;
             userName = result.getUsername();
