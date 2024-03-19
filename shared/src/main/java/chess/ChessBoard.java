@@ -35,9 +35,6 @@ public class ChessBoard {
         }
         return c;
     }
-
-    private final ChessPiece[][]  squares = new ChessPiece[8][8];
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -45,13 +42,11 @@ public class ChessBoard {
         ChessBoard that = (ChessBoard) o;
         return Arrays.deepEquals(squares, that.squares);
     }
-
-
     @Override
     public int hashCode() {
         return Arrays.hashCode(squares);
     }
-
+    private final ChessPiece[][]  squares = new ChessPiece[8][8];
     public ChessBoard() {
 
     }

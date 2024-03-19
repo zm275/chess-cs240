@@ -16,10 +16,12 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return "ChessPiece{" +
-                "type=" + type +
-                ", color=" + color +
-                '}';
+        if (this.color == ChessGame.TeamColor.BLACK){
+            return  ChessBoard.typeToCharMap.get(this.type).toString().toUpperCase();
+        }
+        else {
+            return ChessBoard.typeToCharMap.get(this.type).toString();
+        }
     }
 
     private final ChessGame.TeamColor color;
