@@ -145,7 +145,7 @@ public class Main {
             List<GameData> games = response.getGames();
             System.out.println("You will use the gameID to join or watch a game.");
             for (GameData game : games) {
-                System.out.println(game.gameID() + ": " + game.gameName());
+                System.out.println(game.gameID() + ": " + game.gameName() + ", WHITE: " + game.whiteUsername() + ", BLACK: " + game.blackUsername());
             }
         } else {
             System.out.println(response.getMessage());
