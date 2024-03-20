@@ -182,6 +182,41 @@ public class ServerFacade {
             return gson.fromJson(jsonResponse, ListGamesResponse.class);
         }
     }
+    public static JoinGameResponse joinGame(int gameNumber, String color, String authToken) throws IOException{
+        URL url = new URL(ENDPOINT_URL + "/game");
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setReadTimeout(5000);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Authorization", authToken);
+        connection.setDoOutput(true);
+
+        // Create request body
+        String requestBody = "{\"playerColor\":\"" + color + "\",\"gameID\":\"" + gameNumber + "\"}";
+
+        connection.connect();
+
+        try (OutputStream requestBodyStream = connection.getOutputStream()) {
+            byte[] input = requestBody.getBytes("utf-8");
+            requestBodyStream.write(input, 0, input.length);
+        }
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            InputStream responseBody = connection.getInputStream();
+            String jsonResponse = readResponseAsString(responseBody);
+
+            Gson gson = new Gson();
+            JoinGameResponse response = gson.fromJson(jsonResponse, JoinGameResponse.class);
+            response.setSuccess(true);
+            return response;
+
+        } else {
+            // SERVER RETURNED AN HTTP ERROR
+            InputStream responseBody = connection.getErrorStream();
+            String jsonResponse = readResponseAsString(responseBody);
+            Gson gson = new Gson();
+            return gson.fromJson(jsonResponse, JoinGameResponse.class);
+        }
+    }
     private static String readResponseAsString(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder responseBuilder = new StringBuilder();

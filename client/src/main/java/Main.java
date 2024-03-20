@@ -1,7 +1,4 @@
-import ResponseTypes.CreateGameResponse;
-import ResponseTypes.ListGamesResponse;
-import ResponseTypes.LoginResponse;
-import ResponseTypes.RegisterResponse;
+import ResponseTypes.*;
 import model.GameData;
 import serverFacade.ServerFacade;
 import chess.ChessBoard;
@@ -82,8 +79,6 @@ public class Main {
             case 4:
                 // Call server API to get all game data
                 listAllGames();
-                // Display games with numbering
-                // Handle join/join observer based on user choice
                 break;
             case 5:
                 System.out.println("Enter the number of the game you want to join:");
@@ -92,16 +87,29 @@ public class Main {
                 System.out.println("Enter the color you want to play (WHITE or BLACK):");
                 String color = scanner.nextLine().toUpperCase();
                 // Call server join API to join the user to the specified game with the specified color
+                joinGame(gameNumber, color, authToken);
                 break;
             case 6:
                 System.out.println("Enter the number of the game you want to observe:");
                 int observeGameNumber = scanner.nextInt();
                 scanner.nextLine();
                 // Call server join API to verify that the specified game exists
+
                 break;
             default:
                 System.out.println("Invalid choice. Please try again.");
         }
+    }
+
+    private static void joinGame(int gameNumber, String color, String authToken) throws IOException {
+        JoinGameResponse response = ServerFacade.joinGame(gameNumber, color, authToken);
+        if (response.isSuccess()){
+            System.out.println("Player: " + userName + " is now playing game: " + gameNumber + " as color: " + color);
+            printBoard();
+        } else {
+            System.out.println(response.getMessage());
+        }
+
     }
 
     private static void listAllGames() throws IOException {
@@ -112,6 +120,8 @@ public class Main {
             for (GameData game : games) {
                 System.out.println(game.gameID() + ": " + game.gameName());
             }
+        } else {
+            System.out.println(response.getMessage());
         }
     }
 

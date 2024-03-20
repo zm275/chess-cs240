@@ -1,8 +1,6 @@
 package clientTests;
 
-import ResponseTypes.CreateGameResponse;
-import ResponseTypes.LoginResponse;
-import ResponseTypes.RegisterResponse;
+import ResponseTypes.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -99,6 +97,48 @@ public class ServerFacadeTests {
         assertNotNull(response);
         assertNotNull(response.getMessage());
         assertNull(response.getGameID());
+    }
+    @Test
+    @DisplayName("list game")
+    void listGameTest() throws IOException {
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        createGame("game2", response0.getAuthData().authToken());
+        ListGamesResponse response = listAllGames(response0.getAuthData().authToken());
+        assertNotNull(response.getGames());
+
+    }
+    @Test
+    @DisplayName("bad list game")
+    void badListGameTest() throws IOException {
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        createGame("game2", response0.getAuthData().authToken());
+        ListGamesResponse response = listAllGames("bad_auth");
+        assertNotNull(response.getMessage());
+        assertNull(response.getGames());
+
+    }
+    @Test
+    @DisplayName("join game")
+    void joinGameTest() throws IOException {
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());
+        JoinGameResponse response = joinGame(createGameResponse.getGameID(),"WHITE", response0.getAuthData().authToken());
+        assertNull(response.getMessage());
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+    }
+    @Test
+    @DisplayName("bad join game")
+    void badJoinGameTest() throws IOException {
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());
+        JoinGameResponse response = joinGame(createGameResponse.getGameID(),"WHITE1", response0.getAuthData().authToken());
+        assertNotNull(response.getMessage());
+        assertFalse(response.isSuccess());
     }
 
 
