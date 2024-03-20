@@ -81,25 +81,55 @@ public class Main {
                 listAllGames();
                 break;
             case 5:
-                System.out.println("Enter the number of the game you want to join:");
-                int gameNumber = scanner.nextInt();
-                scanner.nextLine();
+                int gameNumber = 0;
+                boolean validInput = false;
+                while (!validInput) {
+                    System.out.println("Enter the number of the game you want to join:");
+                    try {
+                        gameNumber = Integer.parseInt(scanner.nextLine());
+                        validInput = true; // Set to true if parsing succeeds
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Please enter a valid integer.");
+                        continue; // Restart the loop to ask for input again
+                    }
+                }
                 System.out.println("Enter the color you want to play (WHITE or BLACK):");
                 String color = scanner.nextLine().toUpperCase();
                 // Call server join API to join the user to the specified game with the specified color
                 joinGame(gameNumber, color, authToken);
                 break;
             case 6:
-                System.out.println("Enter the number of the game you want to observe:");
-                int observeGameNumber = scanner.nextInt();
-                scanner.nextLine();
+                int observeGameNumber = 0;
+                boolean validObserveInput = false;
+                while (!validObserveInput) {
+                    System.out.println("Enter the number of the game you want to observe:");
+                    try {
+                        observeGameNumber = Integer.parseInt(scanner.nextLine());
+                        validObserveInput = true; // Set to true if parsing succeeds
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Please enter a valid integer.");
+                        continue; // Restart the loop to ask for input again
+                    }
+                }
                 // Call server join API to verify that the specified game exists
+                watchGame(observeGameNumber, authToken);
 
                 break;
             default:
                 System.out.println("Invalid choice. Please try again.");
         }
     }
+
+    private static void watchGame(int observeGameNumber, String authToken) throws IOException {
+        JoinGameResponse response = ServerFacade.joinGame(observeGameNumber, "", authToken);
+        if (response.isSuccess()){
+            System.out.println("Player: " + userName + " is now watching game: " + observeGameNumber);
+            printBoard();
+        } else {
+            System.out.println(response.getMessage());
+        }
+    }
+
 
     private static void joinGame(int gameNumber, String color, String authToken) throws IOException {
         JoinGameResponse response = ServerFacade.joinGame(gameNumber, color, authToken);

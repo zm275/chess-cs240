@@ -40,6 +40,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("good register")
     void register() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response = registerUser("jquelin", "1233", "1@1.com");
         assertEquals("jquelin", response.getAuthData().username());
         assertNotNull(response.getAuthData().authToken());
@@ -49,6 +50,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("bad register")
     void badRegister() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         RegisterResponse response = registerUser("jquelin", "1233", "1@1.com");
         assertNotNull(response);
@@ -57,6 +59,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("good login")
     void login() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         LoginResponse response = loginUser("jquelin", "1233");
         assertNotNull(response);
@@ -65,6 +68,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("good logout")
     void logout() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         LoginResponse response = logoutUser(response0.getAuthData().authToken());
         assertNotNull(response);
@@ -74,6 +78,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("bad logout")
     void badLogout() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         LoginResponse response = logoutUser("123435");
         assertNotNull(response);
@@ -83,6 +88,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("good create game")
     void createGameTest() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         CreateGameResponse response = createGame("testGame", response0.getAuthData().authToken());
         assertNotNull(response);
@@ -92,6 +98,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("bad create game")
     void createBadGameTest() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         CreateGameResponse response = createGame("testGame", "12345");
         assertNotNull(response);
@@ -101,6 +108,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("list game")
     void listGameTest() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         createGame("testGame", response0.getAuthData().authToken());
         createGame("game2", response0.getAuthData().authToken());
@@ -111,6 +119,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("bad list game")
     void badListGameTest() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         createGame("testGame", response0.getAuthData().authToken());
         createGame("game2", response0.getAuthData().authToken());
@@ -122,6 +131,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("join game")
     void joinGameTest() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         createGame("testGame", response0.getAuthData().authToken());
         CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());
@@ -133,6 +143,41 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("bad join game")
     void badJoinGameTest() throws IOException {
+        ServerFacade.clearDB();
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());
+        JoinGameResponse response = joinGame(createGameResponse.getGameID(),"WHITE1", response0.getAuthData().authToken());
+        assertNotNull(response.getMessage());
+        assertFalse(response.isSuccess());
+    }
+    @Test
+    @DisplayName("bad join game")
+    void badJoinGameTest1() throws IOException {
+        ServerFacade.clearDB();
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());
+        JoinGameResponse response = joinGame(createGameResponse.getGameID(),"WHITE21", response0.getAuthData().authToken());
+        assertNotNull(response.getMessage());
+        assertFalse(response.isSuccess());
+    }
+    @Test
+    @DisplayName("watch game")
+    void watchGameTest() throws IOException {
+        ServerFacade.clearDB();
+        RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
+        createGame("testGame", response0.getAuthData().authToken());
+        CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());
+        JoinGameResponse response = joinGame(createGameResponse.getGameID(),"WHITE", response0.getAuthData().authToken());
+        assertNull(response.getMessage());
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+    }
+    @Test
+    @DisplayName("bad watch game")
+    void badWatchGameTest() throws IOException {
+        ServerFacade.clearDB();
         RegisterResponse response0 = registerUser("jquelin", "1233", "1@1.com");
         createGame("testGame", response0.getAuthData().authToken());
         CreateGameResponse createGameResponse = createGame("game2", response0.getAuthData().authToken());

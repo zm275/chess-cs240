@@ -162,4 +162,5 @@ public class ServiceTest {
             gameService.joinGame(gameId, "RED", userAuth.authToken(), testGameDAO,testAuthDAO);
         });
     }
+
 }

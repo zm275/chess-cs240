@@ -80,7 +80,7 @@ public class GameHandler {
         }
         catch (JsonSyntaxException j) {
             response.status(400);
-            return new BadRequestResponse("Error: Bad Request. Invalid Json").toJson();
+            return new BadRequestResponse("Error: Bad Request. Please type WHITE or BLACK").toJson();
         }
 
     }
