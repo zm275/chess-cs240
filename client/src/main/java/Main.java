@@ -130,7 +130,6 @@ public class Main {
         }
     }
 
-
     private static void joinGame(int gameNumber, String color, String authToken) throws IOException {
         JoinGameResponse response = ServerFacade.joinGame(gameNumber, color, authToken);
         if (response.isSuccess()){
@@ -141,7 +140,6 @@ public class Main {
         }
 
     }
-
     private static void listAllGames() throws IOException {
         ListGamesResponse response = ServerFacade.listAllGames(authToken);
         if (response.isSuccess()){
@@ -154,7 +152,6 @@ public class Main {
             System.out.println(response.getMessage());
         }
     }
-
     private static void createGame(String gameName) throws IOException {
         CreateGameResponse response = ServerFacade.createGame(gameName, authToken);
         if (response != null && response.getGameID() != null) {
@@ -166,7 +163,6 @@ public class Main {
             System.out.println("Unknown error.");
         }
     }
-
     private static void logout(String authToken) throws IOException {
         LoginResponse result = ServerFacade.logoutUser(authToken);
         if (result.isSuccess()) {
@@ -177,7 +173,6 @@ public class Main {
            System.out.println(result.getMessage());
         }
     }
-
     private static void preLogin(Scanner scanner) throws IOException {
         System.out.println("Enter your username: ");
         String username = scanner.nextLine();
@@ -223,7 +218,6 @@ public class Main {
         System.out.println("3. Login - Prompts the user to input login information");
         System.out.println("4. Register - Prompts the user to input registration information");
     }
-
     public static void printBoard() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
@@ -232,7 +226,6 @@ public class Main {
         printBlackOrientation(board);
 
     }
-
     private static void printBlackBorder() {
         for (int i = 0; i <= 9; i++ ){
             System.out.print(EscapeSequences.SET_BG_COLOR_BLACK);
@@ -241,7 +234,6 @@ public class Main {
         System.out.print(EscapeSequences.RESET_BG_COLOR);
         System.out.println();
     }
-
     public static void printWhiteOrientation(ChessBoard board) {
         // Draw the chessboard with escape sequences
         System.out.print(EscapeSequences.ERASE_SCREEN);
@@ -344,7 +336,6 @@ public class Main {
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
         System.out.print(EscapeSequences.ERASE_LINE);
     }
-
     private static String getChessPiece(ChessBoard board, int row, int col) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         if (piece == null) {
