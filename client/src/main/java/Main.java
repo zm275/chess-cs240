@@ -16,7 +16,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 public class Main {
     private static String authToken;
     private static String userName;
-    private static final ServerFacade serverFacade  = new ServerFacade("http://localhost:8080");
+    private static final ServerFacade serverFacade  = new ServerFacade(8080);
     private static boolean loggedIn = false;
 
     public static void main(String[] args) throws IOException {

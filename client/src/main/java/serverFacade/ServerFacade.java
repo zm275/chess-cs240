@@ -2,21 +2,17 @@ package serverFacade;
 
 import ResponseTypes.*;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import model.AuthData;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 public class ServerFacade {
-    private static String ENDPOINT_URL;
+    private final String ENDPOINT_URL;
 
-    public ServerFacade(String endpoint_url) {
-        ENDPOINT_URL = endpoint_url;
+    public ServerFacade(int port) {
+        ENDPOINT_URL = "http://localhost:" + port;
     }
     public void clearDB() throws IOException {
         URL url = new URL(ENDPOINT_URL + "/db");

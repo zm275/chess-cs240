@@ -22,9 +22,9 @@ public class ServerFacadeTests {
 
     @BeforeAll
     public static void init() throws IOException {
-        serverFacade = new ServerFacade( "http://localhost:8080");
         server = new Server();
         var port = server.run(0);
+        serverFacade = new ServerFacade(port);
         System.out.println("Started test HTTP server on " + port);
         serverFacade.clearDB();
     }
