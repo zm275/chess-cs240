@@ -13,8 +13,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class ServerFacade {
-    public static final String ENDPOINT_URL = "http://localhost:8080";
-    public static void clearDB() throws IOException {
+    private static String ENDPOINT_URL;
+
+    public ServerFacade(String endpoint_url) {
+        ENDPOINT_URL = endpoint_url;
+    }
+    public void clearDB() throws IOException {
         URL url = new URL(ENDPOINT_URL + "/db");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setReadTimeout(5000);
@@ -25,7 +29,7 @@ public class ServerFacade {
         }
 
     }
-    public static LoginResponse loginUser(String username, String password) throws IOException {
+    public LoginResponse loginUser(String username, String password) throws IOException {
 
         URL url = new URL(ENDPOINT_URL + "/session");
 
@@ -62,7 +66,7 @@ public class ServerFacade {
             return gson.fromJson(jsonResponse, LoginResponse.class);
         }
     }
-    public static RegisterResponse registerUser(String username, String password, String email) throws IOException {
+    public RegisterResponse registerUser(String username, String password, String email) throws IOException {
         URL url = new URL(ENDPOINT_URL + "/user");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -96,7 +100,7 @@ public class ServerFacade {
             return gson.fromJson(jsonResponse, RegisterResponse.class);
         }
     }
-    public static LoginResponse logoutUser(String authToken) throws IOException {
+    public LoginResponse logoutUser(String authToken) throws IOException {
         URL url = new URL(ENDPOINT_URL + "/session");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -118,7 +122,7 @@ public class ServerFacade {
             return gson.fromJson(jsonResponse, LoginResponse.class);
         }
     }
-    public static CreateGameResponse createGame(String gameName, String authToken) throws IOException {
+    public CreateGameResponse createGame(String gameName, String authToken) throws IOException {
         URL url = new URL(ENDPOINT_URL + "/game");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -152,7 +156,7 @@ public class ServerFacade {
             return gson.fromJson(jsonResponse, CreateGameResponse.class);
         }
     }
-    public static ListGamesResponse listAllGames(String authToken) throws IOException {
+    public ListGamesResponse listAllGames(String authToken) throws IOException {
         URL url = new URL(ENDPOINT_URL + "/game");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -182,7 +186,7 @@ public class ServerFacade {
             return gson.fromJson(jsonResponse, ListGamesResponse.class);
         }
     }
-    public static JoinGameResponse joinGame(int gameNumber, String color, String authToken) throws IOException{
+    public JoinGameResponse joinGame(int gameNumber, String color, String authToken) throws IOException{
         URL url = new URL(ENDPOINT_URL + "/game");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

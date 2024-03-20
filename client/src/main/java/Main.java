@@ -16,8 +16,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 public class Main {
     private static String authToken;
     private static String userName;
-    private static final String ENDPOINT_URL = "http://localhost:8080";
-
+    private static final ServerFacade serverFacade  = new ServerFacade("http://localhost:8080");
     private static boolean loggedIn = false;
 
     public static void main(String[] args) throws IOException {
@@ -121,7 +120,7 @@ public class Main {
     }
 
     private static void watchGame(int observeGameNumber, String authToken) throws IOException {
-        JoinGameResponse response = ServerFacade.joinGame(observeGameNumber, "", authToken);
+        JoinGameResponse response = serverFacade.joinGame(observeGameNumber, "", authToken);
         if (response.isSuccess()){
             System.out.println("Player: " + userName + " is now watching game: " + observeGameNumber);
             printBoard();
@@ -131,7 +130,7 @@ public class Main {
     }
 
     private static void joinGame(int gameNumber, String color, String authToken) throws IOException {
-        JoinGameResponse response = ServerFacade.joinGame(gameNumber, color, authToken);
+        JoinGameResponse response = serverFacade.joinGame(gameNumber, color, authToken);
         if (response.isSuccess()){
             System.out.println("Player: " + userName + " is now playing game: " + gameNumber + " as color: " + color);
             printBoard();
@@ -141,7 +140,7 @@ public class Main {
 
     }
     private static void listAllGames() throws IOException {
-        ListGamesResponse response = ServerFacade.listAllGames(authToken);
+        ListGamesResponse response = serverFacade.listAllGames(authToken);
         if (response.isSuccess()){
             List<GameData> games = response.getGames();
             System.out.println("You will use the gameID to join or watch a game.");
@@ -153,7 +152,7 @@ public class Main {
         }
     }
     private static void createGame(String gameName) throws IOException {
-        CreateGameResponse response = ServerFacade.createGame(gameName, authToken);
+        CreateGameResponse response = serverFacade.createGame(gameName, authToken);
         if (response != null && response.getGameID() != null) {
             System.out.println("Successfully created game " + gameName);
         } else if(response != null) {
@@ -164,7 +163,7 @@ public class Main {
         }
     }
     private static void logout(String authToken) throws IOException {
-        LoginResponse result = ServerFacade.logoutUser(authToken);
+        LoginResponse result = serverFacade.logoutUser(authToken);
         if (result.isSuccess()) {
             loggedIn = false;
             System.out.println("logout successful");
@@ -179,7 +178,7 @@ public class Main {
 
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
-        LoginResponse result = ServerFacade.loginUser(username, password);
+        LoginResponse result = serverFacade.loginUser(username, password);
         if (result != null && result.getAuthToken() != null && !result.getAuthToken().isEmpty()) {
             loggedIn = true;
             userName = result.getUsername();
@@ -200,7 +199,7 @@ public class Main {
         String email = scanner.nextLine();
 
         // If registration successful, login user and transition to Postlogin UI
-        RegisterResponse result = ServerFacade.registerUser(username, password, email);
+        RegisterResponse result = serverFacade.registerUser(username, password, email);
         if (result != null && result.getAuthData() != null && result.getAuthData().authToken() != null && !result.getAuthData().authToken().isEmpty()) {
             loggedIn =  true;
             userName = result.getAuthData().username();
