@@ -18,6 +18,8 @@ public class Main {
     private static String userName;
     private static final ServerFacade serverFacade  = new ServerFacade(8080);
     private static boolean loggedIn = false;
+    private static boolean inGame = false;
+    private static boolean observer = false;
 
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -47,10 +49,50 @@ public class Main {
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
-            } else {
+            } else if (!inGame) {
                 loggedInPhase(scanner);
             }
+            else {
+                gamePlayPhase(scanner);
+            }
         }
+    }
+    private static void gamePlayPhase(Scanner scanner) throws IOException {
+        System.out.println(observer ? "Observer >>>" : "Player >>>");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (choice) {
+            case 1:
+                System.out.println("Help - Displays text informing the user what actions they can take.");
+                System.out.println("Redraw Chess Board - Redraws the chess board upon the user’s request.");
+                System.out.println("Leave - Removes the user from the game (whether they are playing or observing the game). The client transitions back to the Post-Login UI.");
+                System.out.println("Make Move - Allow the user to input what move they want to make. The board is updated to reflect the result of the move, and the board automatically updates on all clients involved in the game.");
+                System.out.println("Resign - Prompts the user to confirm they want to resign. If they do, the user forfeits the game and the game is over. Does not cause the user to leave the game.");
+                System.out.println("Highlight Legal Moves - Allows the user to input what piece for which they want to highlight legal moves. The selected piece’s current square and all squares it can legally move to are highlighted. This is a local operation and has no effect on remote users’ screens.");
+                break;
+            case 2:
+                //redraw the chessboard
+                //get the game from server, this should be done over a websocket
+                //call printGame with the board from the game
+                break;
+            case 3:
+                System.out.println("Leaving the game.");
+                inGame = false;
+                observer = false;
+                break;
+            case 4:
+                break;
+            case 5:
+
+                break;
+            case 6:
+
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+
     }
     private static void loggedInPhase(Scanner scanner) throws IOException {
         System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
@@ -112,7 +154,9 @@ public class Main {
                 }
                 // Call server join API to verify that the specified game exists
                 watchGame(observeGameNumber, authToken);
-
+                inGame = true;
+                observer = true;
+                gamePlayPhase(scanner);
                 break;
             default:
                 System.out.println("Invalid choice. Please try again.");
@@ -133,6 +177,7 @@ public class Main {
         JoinGameResponse response = serverFacade.joinGame(gameNumber, color, authToken);
         if (response.isSuccess()){
             System.out.println("Player: " + userName + " is now playing game: " + gameNumber + " as color: " + color);
+            inGame = true;
             printBoard();
         } else {
             System.out.println(response.getMessage());
