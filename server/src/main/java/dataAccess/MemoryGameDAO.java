@@ -59,4 +59,9 @@ public class MemoryGameDAO implements GameDAO{
         gameDataMap.clear();
     }
 
+    @Override
+    public String getUsernameByColor(int gameID, ChessGame.TeamColor color) throws DataAccessException {
+        return "WHITE";
+    }
+
 }

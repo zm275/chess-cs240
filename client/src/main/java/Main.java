@@ -186,7 +186,7 @@ public class Main {
             } else {
                 System.out.println("Invalid color: " + color);
             }
-            websocketClient = new WebsocketClient(true, 8080, gameNumber, teamColor, authToken);
+            websocketClient = new WebsocketClient(true, 8080, gameNumber, teamColor, authToken, userName);
         } else {
             System.out.println(response.getMessage());
         }

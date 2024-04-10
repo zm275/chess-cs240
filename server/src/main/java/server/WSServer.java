@@ -6,24 +6,35 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import dataAccess.GameDAO;
-import dataAccess.SQLGameDAO;
+import dataAccess.*;
+import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import service.GameService;
+import service.UserService;
 import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 @WebSocket
 public class WSServer {
     private final GameDAO gameDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
     private final GameService gameService;
+    private final UserService userService;
     private final Gson gson = new Gson();
+    private final ConnectionManager connections = new ConnectionManager();
 
     public WSServer() {
         gameService = new GameService();
+        this.userService = new UserService();
         gameDAO = new SQLGameDAO();
+        this.userDAO = new SQLUserDAO();
+        this.authDAO = new SQLAuthDAO();
     }
     @OnWebSocketConnect
     public void onConnect(Session session) throws Exception {
@@ -67,11 +78,31 @@ public class WSServer {
 
     private void handleJoinPlayer(Session session, JsonObject json) throws DataAccessException, IOException {
         int gameID = json.get("gameID").getAsInt();
+        String visitorAuthToken = json.get("authToken").getAsString();
         ChessGame.TeamColor color = gson.fromJson(json.get("playerColor"), ChessGame.TeamColor.class);
+        // Check if the chosen color is available
+        String colorUsername = gameDAO.getUsernameByColor(gameID, color);
+        String userName = authDAO.getAuth(visitorAuthToken).username();
+        if (!Objects.equals(colorUsername, userName)) {
+            if (colorUsername == null) {
+                String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: That color is empty."));
+                session.getRemote().sendString(errorJson);
+                return;
+            }
+            // Color is not available, send an error message to the client
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: That color is already taken."));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
         ChessBoard board = gameService.getChessBoard(gameID, gameDAO);
         LoadGame game = new LoadGame(board, color);
         String LoadGameJson = gson.toJson(game);
         session.getRemote().sendString(LoadGameJson);
+        connections.add(userName, session);
+        //send notification out to everyone that is playing or watching this game.
+        Notification notification = new Notification(userName + " has joined game # " + gameID + " as color " + color + ".");
+        connections.broadcast(userName, notification);
+
     }
     private void handleJoinObserver(Session session, JsonObject json) {
     }private void handleMakeMove(Session session, JsonObject json) {

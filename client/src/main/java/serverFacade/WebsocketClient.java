@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import ui.EscapeSequences;
 import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 
@@ -24,7 +25,7 @@ public class WebsocketClient extends Endpoint{
     private Session session;
     private final Gson gson = new Gson();
 
-    public WebsocketClient(boolean join, int port, int gameID, ChessGame.TeamColor playerColor, String authToken) throws Exception{
+    public WebsocketClient(boolean join, int port, int gameID, ChessGame.TeamColor playerColor, String authToken, String userName) throws Exception{
         try {
             // Connect to WebSocket server
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -194,6 +195,8 @@ public class WebsocketClient extends Endpoint{
         System.out.print(EscapeSequences.ERASE_LINE);
     }
     private void handleNotification(JsonObject json) {
+        Notification notification = gson.fromJson(json, Notification.class);
+        System.out.println(notification.message());
     }
 
     private void handleError(JsonObject json) {
