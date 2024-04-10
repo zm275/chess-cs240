@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 
 public class WebsocketClient extends Endpoint{
 
@@ -71,14 +72,16 @@ public class WebsocketClient extends Endpoint{
     private void handleLoadGame(JsonObject json) {
         LoadGame game = gson.fromJson(json, LoadGame.class);
         ChessBoard board = game.chessBoard();
-        printBoard(board);
+        printBoard(board, game.teamColor());
 
     }
-    public static void printBoard(ChessBoard board) {
-        printWhiteOrientation(board);
-        printBlackBorder();
-        printBlackOrientation(board);
-
+    public static void printBoard(ChessBoard board, ChessGame.TeamColor color) {
+        if (color == WHITE){
+            printWhiteOrientation(board);
+        }
+        else {
+            printBlackOrientation(board);
+        }
     }
     private static void printBlackBorder() {
         for (int i = 0; i <= 9; i++ ){

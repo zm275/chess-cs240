@@ -2,6 +2,7 @@ package server;
 
 import ResponseTypes.DataAccessException;
 import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -66,8 +67,9 @@ public class WSServer {
 
     private void handleJoinPlayer(Session session, JsonObject json) throws DataAccessException, IOException {
         int gameID = json.get("gameID").getAsInt();
+        ChessGame.TeamColor color = gson.fromJson(json.get("playerColor"), ChessGame.TeamColor.class);
         ChessBoard board = gameService.getChessBoard(gameID, gameDAO);
-        LoadGame game = new LoadGame(board);
+        LoadGame game = new LoadGame(board, color);
         String LoadGameJson = gson.toJson(game);
         session.getRemote().sendString(LoadGameJson);
     }

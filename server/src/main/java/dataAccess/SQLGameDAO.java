@@ -25,6 +25,7 @@ public class SQLGameDAO implements GameDAO{
             throw new DataAccessException("Blank Game Name", 400);
         }
         ChessGame game = new ChessGame();
+        game.getBoard().resetBoard();
         Gson gson = new Gson();
         String chessGameJson = gson.toJson(game); //serialize game
         int gameID = getNextGameId();
