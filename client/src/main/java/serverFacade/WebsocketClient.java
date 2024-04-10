@@ -80,8 +80,11 @@ public class WebsocketClient extends Endpoint{
         if (color == WHITE){
             printWhiteOrientation(board);
         }
-        else {
+        else if (color == BLACK) {
             printBlackOrientation(board);
+        }
+        else {
+            printWhiteOrientation(board);
         }
     }
     private static void printBlackBorder() {
@@ -240,7 +243,9 @@ public class WebsocketClient extends Endpoint{
         String joinPlayerMessage = gson.toJson(joinPlayer);
         session.getBasicRemote().sendText(joinPlayerMessage);
     }
-    private void sendObservePlayerMessage(JoinObserver joinObserver) {
+    private void sendObservePlayerMessage(JoinObserver joinObserver) throws IOException {
+        String observePlayerMessage = gson.toJson(joinObserver);
+        session.getBasicRemote().sendText(observePlayerMessage);
     }
 
     @Override

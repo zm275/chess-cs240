@@ -163,10 +163,11 @@ public class Main {
         }
     }
 
-    private static void watchGame(int observeGameNumber, String authToken) throws IOException {
+    private static void watchGame(int observeGameNumber, String authToken) throws Exception {
         JoinGameResponse response = serverFacade.joinGame(observeGameNumber, "", authToken);
         if (response.isSuccess()){
             System.out.println("Player: " + userName + " is now watching game: " + observeGameNumber);
+            websocketClient = new WebsocketClient(false, 8080, observeGameNumber,null, authToken, userName);
         } else {
             System.out.println(response.getMessage());
         }

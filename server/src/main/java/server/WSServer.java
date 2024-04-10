@@ -119,7 +119,34 @@ public class WSServer {
         }
 
     }
-    private void handleJoinObserver(Session session, JsonObject json) {
+    private void handleJoinObserver(Session session, JsonObject json) throws IOException, DataAccessException {
+        int gameID = json.get("gameID").getAsInt();
+        //check if game exists
+        try {
+            gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: Game not found."));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
+        String visitorAuthToken = json.get("authToken").getAsString();
+        try {
+            String userName = authDAO.getAuth(visitorAuthToken).username();
+            ChessBoard board = gameService.getChessBoard(gameID, gameDAO);
+            LoadGame game = new LoadGame(board, null);
+            String LoadGameJson = gson.toJson(game);
+            session.getRemote().sendString(LoadGameJson);
+            connections.add(userName, session);
+            //send notification out to everyone that is playing or watching this game.
+            Notification notification = new Notification(userName + " has joined game # " + gameID + "as a spectator");
+            connections.broadcast(userName, notification);
+        } catch (DataAccessException e) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: AuthToken invalid."));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
+
+
     }private void handleMakeMove(Session session, JsonObject json) {
     }private void handleLeave(Session session, JsonObject json) {
     }private void handleResign(Session session, JsonObject json) {
