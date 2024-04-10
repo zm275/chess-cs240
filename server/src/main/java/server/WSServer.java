@@ -78,30 +78,45 @@ public class WSServer {
 
     private void handleJoinPlayer(Session session, JsonObject json) throws DataAccessException, IOException {
         int gameID = json.get("gameID").getAsInt();
-        String visitorAuthToken = json.get("authToken").getAsString();
-        ChessGame.TeamColor color = gson.fromJson(json.get("playerColor"), ChessGame.TeamColor.class);
-        // Check if the chosen color is available
-        String colorUsername = gameDAO.getUsernameByColor(gameID, color);
-        String userName = authDAO.getAuth(visitorAuthToken).username();
-        if (!Objects.equals(colorUsername, userName)) {
-            if (colorUsername == null) {
-                String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: That color is empty."));
-                session.getRemote().sendString(errorJson);
-                return;
-            }
-            // Color is not available, send an error message to the client
-            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: That color is already taken."));
+        //check if game exists
+        try {
+            gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: Game not found."));
             session.getRemote().sendString(errorJson);
             return;
         }
-        ChessBoard board = gameService.getChessBoard(gameID, gameDAO);
-        LoadGame game = new LoadGame(board, color);
-        String LoadGameJson = gson.toJson(game);
-        session.getRemote().sendString(LoadGameJson);
-        connections.add(userName, session);
-        //send notification out to everyone that is playing or watching this game.
-        Notification notification = new Notification(userName + " has joined game # " + gameID + " as color " + color + ".");
-        connections.broadcast(userName, notification);
+        String visitorAuthToken = json.get("authToken").getAsString();
+
+        ChessGame.TeamColor color = gson.fromJson(json.get("playerColor"), ChessGame.TeamColor.class);
+        // Check if the chosen color is available
+        String colorUsername = gameDAO.getUsernameByColor(gameID, color);
+        try {
+            String userName = authDAO.getAuth(visitorAuthToken).username();
+            if (!Objects.equals(colorUsername, userName)) {
+                if (colorUsername == null) {
+                    String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: That color is empty."));
+                    session.getRemote().sendString(errorJson);
+                    return;
+                }
+                // Color is not available, send an error message to the client
+                String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: That color is already taken."));
+                session.getRemote().sendString(errorJson);
+                return;
+            }
+            ChessBoard board = gameService.getChessBoard(gameID, gameDAO);
+            LoadGame game = new LoadGame(board, color);
+            String LoadGameJson = gson.toJson(game);
+            session.getRemote().sendString(LoadGameJson);
+            connections.add(userName, session);
+            //send notification out to everyone that is playing or watching this game.
+            Notification notification = new Notification(userName + " has joined game # " + gameID + " as color " + color + ".");
+            connections.broadcast(userName, notification);
+        } catch (DataAccessException e){
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: Invalid authToken."));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
 
     }
     private void handleJoinObserver(Session session, JsonObject json) {
