@@ -14,11 +14,13 @@ public class Server {
     private final UserDAO userDAO;
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
+    private final WSServer wsServer;
 
     public Server() {
         this.userDAO = new SQLUserDAO();
         this.gameDAO = new SQLGameDAO();
         this.authDAO = new SQLAuthDAO();
+        this.wsServer = new WSServer();
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -32,6 +34,7 @@ public class Server {
             return -1;
         }
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/connect", WSServer.class);
 
         Spark.delete("/db", (req, res) -> new ClearDbHandler().clearDatabases(req,res,userDAO, authDAO, gameDAO));
         Spark.post("/user", (req, res) -> new UserHandler().registerNewUser(req, res, userDAO, authDAO));

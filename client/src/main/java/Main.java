@@ -1,9 +1,11 @@
 import ResponseTypes.*;
+import chess.ChessGame;
 import model.GameData;
 import serverFacade.ServerFacade;
 import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import serverFacade.WebsocketClient;
 import ui.EscapeSequences;
 
 import java.io.*;
@@ -20,8 +22,9 @@ public class Main {
     private static boolean loggedIn = false;
     private static boolean inGame = false;
     private static boolean observer = false;
+    private static WebsocketClient websocketClient;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to 240 Chess! Enter 1 to the console to access help menu.");
         while (true) {
@@ -94,7 +97,7 @@ public class Main {
         }
 
     }
-    private static void loggedInPhase(Scanner scanner) throws IOException {
+    private static void loggedInPhase(Scanner scanner) throws Exception {
         System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
         int choice = scanner.nextInt();
         scanner.nextLine();
@@ -173,11 +176,21 @@ public class Main {
         }
     }
 
-    private static void joinGame(int gameNumber, String color, String authToken) throws IOException {
+    private static void joinGame(int gameNumber, String color, String authToken) throws Exception {
         JoinGameResponse response = serverFacade.joinGame(gameNumber, color, authToken);
         if (response.isSuccess()){
             System.out.println("Player: " + userName + " is now playing game: " + gameNumber + " as color: " + color);
             inGame = true;
+            // Convert color string to TeamColor enum
+            ChessGame.TeamColor teamColor = null;
+            if (color.equalsIgnoreCase("WHITE")) {
+                teamColor = ChessGame.TeamColor.WHITE;
+            } else if (color.equalsIgnoreCase("BLACK")) {
+                teamColor = ChessGame.TeamColor.BLACK;
+            } else {
+                System.out.println("Invalid color: " + color);
+            }
+            websocketClient = new WebsocketClient(true, 8080, gameNumber, teamColor, authToken);
             printBoard();
         } else {
             System.out.println(response.getMessage());
