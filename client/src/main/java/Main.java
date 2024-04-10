@@ -46,9 +46,6 @@ public class Main {
                     case 4:
                         preRegister(scanner);
                         break;
-                    case 5:
-                        printBoard();
-                        break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
@@ -170,7 +167,6 @@ public class Main {
         JoinGameResponse response = serverFacade.joinGame(observeGameNumber, "", authToken);
         if (response.isSuccess()){
             System.out.println("Player: " + userName + " is now watching game: " + observeGameNumber);
-            printBoard();
         } else {
             System.out.println(response.getMessage());
         }
@@ -191,7 +187,6 @@ public class Main {
                 System.out.println("Invalid color: " + color);
             }
             websocketClient = new WebsocketClient(true, 8080, gameNumber, teamColor, authToken);
-            printBoard();
         } else {
             System.out.println(response.getMessage());
         }
@@ -275,140 +270,6 @@ public class Main {
         System.out.println("3. Login - Prompts the user to input login information");
         System.out.println("4. Register - Prompts the user to input registration information");
     }
-    public static void printBoard() {
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        printWhiteOrientation(board);
-        printBlackBorder();
-        printBlackOrientation(board);
 
-    }
-    private static void printBlackBorder() {
-        for (int i = 0; i <= 9; i++ ){
-            System.out.print(EscapeSequences.SET_BG_COLOR_BLACK);
-            System.out.print("   ");
-        }
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.println();
-    }
-    public static void printWhiteOrientation(ChessBoard board) {
-        // Draw the chessboard with escape sequences
-        System.out.print(EscapeSequences.ERASE_SCREEN);
-        System.out.print(EscapeSequences.moveCursorToLocation(1, 1));
 
-        boolean blackSquare = false;
-        for (int row = 0; row <= 9; row++) {
-            //This creates the letter row on top and bottom
-            if (row == 0 || row == 9) {
-                for (int edge_col = 9; edge_col >= 0; edge_col -= 1) {
-                    if (edge_col == 0 || edge_col == 9) {
-                        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GRAY);
-                        System.out.print("   ");
-                        continue;
-                    }
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GRAY);
-                    System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    System.out.print(" " + mapNumberToChar(edge_col) + " ");
-                }
-                System.out.print(EscapeSequences.RESET_BG_COLOR);
-                System.out.println();
-                continue;
-            }
-            for (int col = 0; col <= 9; col++) {
-                if (col == 0 || col == 9) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GRAY);
-                    System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    System.out.print(" " + row + " ");
-                    continue;
-
-                }
-                if (blackSquare) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_BLACK);
-                } else {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_WHITE);
-                }
-
-                System.out.print(" " + getChessPiece(board, row, col) + " "); // Add spaces around the piece
-                blackSquare = !blackSquare;
-            }
-            blackSquare = !blackSquare;
-            System.out.print(EscapeSequences.RESET_BG_COLOR);
-
-            System.out.println();
-
-        }
-
-        // Reset colors to default
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-        System.out.print(EscapeSequences.ERASE_LINE);
-    }
-    public static void printBlackOrientation(ChessBoard board) {
-        // Draw the chessboard with escape sequences
-        System.out.print(EscapeSequences.ERASE_SCREEN);
-        System.out.print(EscapeSequences.moveCursorToLocation(1, 1));
-
-        boolean blackSquare = false;
-        for (int row = 9; row >= 0; row--) {
-            //This creates the letter row on top and bottom
-            if (row == 0 || row == 9) {
-                for (int edge_col = 0; edge_col <= 9; edge_col += 1) {
-                    if (edge_col == 0 || edge_col == 9) {
-                        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GRAY);
-                        System.out.print("   ");
-                        continue;
-                    }
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GRAY);
-                    System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    System.out.print(" " + mapNumberToChar(edge_col) + " ");
-                }
-                System.out.print(EscapeSequences.RESET_BG_COLOR);
-                System.out.println();
-                continue;
-            }
-            for (int col = 9; col >= 0; col--) {
-                if (col == 0 || col == 9) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GRAY);
-                    System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-                    System.out.print(" " + row + " ");
-                    continue;
-
-                }
-                if (blackSquare) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_BLACK);
-                } else {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_WHITE);
-                }
-
-                System.out.print(" " + getChessPiece(board, row, col) + " "); // Add spaces around the piece
-                blackSquare = !blackSquare;
-            }
-            blackSquare = !blackSquare;
-            System.out.print(EscapeSequences.RESET_BG_COLOR);
-
-            System.out.println();
-
-        }
-
-        // Reset colors to default
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-        System.out.print(EscapeSequences.ERASE_LINE);
-    }
-    private static String getChessPiece(ChessBoard board, int row, int col) {
-        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-        if (piece == null) {
-            return " ";
-        } else {
-            String pieceSymbol = String.valueOf(piece);
-            if (piece.getTeamColor() == BLACK) {
-                return EscapeSequences.SET_TEXT_COLOR_BLUE + pieceSymbol;
-            }
-            else {
-                return EscapeSequences.SET_TEXT_COLOR_RED + pieceSymbol.toUpperCase();
-            }
-
-        }
-    }
-    public static char mapNumberToChar(int number) {
-        return (char) ('a' + number - 1);
-    }
 }

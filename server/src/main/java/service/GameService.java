@@ -1,5 +1,7 @@
 package service;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.JsonSyntaxException;
 import ResponseTypes.DataAccessException;
 import dataAccess.AuthDAO;
@@ -15,6 +17,13 @@ public class GameService {
     public int createGame(String gameName, GameDAO gameDAO) throws DataAccessException {
         return gameDAO.createGame(gameName);
     }
+    public ChessBoard getChessBoard(int gameID, GameDAO gameDAO) throws DataAccessException {
+        GameData gameData = gameDAO.getGame(gameID);
+        ChessGame game = gameData.game();
+        ChessBoard board = game.getBoard();
+        return board;
+    }
+
     public void joinGame(int gameID, String playerColor, String authToken, GameDAO gameDAO, AuthDAO authDAO) throws DataAccessException, JsonSyntaxException {
         //find the game
         GameData gameData = gameDAO.getGame(gameID);
