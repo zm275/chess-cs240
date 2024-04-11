@@ -159,6 +159,27 @@ public class WSServer {
         //check validity of move
         GameData gameData = gameDAO.getGame(makeMove.getGameID());
         ChessGame game = gameData.game();
+        ChessGame.TeamColor playerMoveColor = game.getBoard().getPiece(makeMove.getMove().getStartPosition()).getTeamColor();
+        ChessGame.TeamColor playerTrueColor;
+
+        //check if they are an observer
+        if ( !Objects.equals(gameData.whiteUsername(), userName) & (!Objects.equals(gameData.blackUsername(), userName))) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: You can't make moves as an observer. Silly"));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
+        //check if they are making move for opponent
+        if (Objects.equals(gameData.whiteUsername(), userName)) {
+            playerTrueColor = ChessGame.TeamColor.WHITE;
+        } else {
+            playerTrueColor = ChessGame.TeamColor.BLACK;
+        }
+        if (!Objects.equals(playerMoveColor,playerTrueColor)) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: It is not your turn. Wait for you opponent to make their move."));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
+
         try {
             game.makeMove(makeMove.getMove());
         } catch (InvalidMoveException e) {
