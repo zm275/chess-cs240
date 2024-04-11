@@ -12,6 +12,7 @@ import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.Leave;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -56,14 +57,6 @@ public class WebsocketClient extends Endpoint{
                         case "NOTIFICATION":
                             // Handle NOTIFICATION message
                             handleNotification(json);
-                            break;
-                        case "ERROR":
-                            // Handle ERROR message
-                            handleError(json);
-                            break;
-                        default:
-                            // Handle unknown message type
-                            handleUnknownMessage(json);
                             break;
                     }
                 }
@@ -212,15 +205,6 @@ public class WebsocketClient extends Endpoint{
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
         System.out.print(EscapeSequences.ERASE_LINE);
     }
-    private void handleNotification(JsonObject json) {
-        Notification notification = gson.fromJson(json, Notification.class);
-        System.out.println(notification.message());
-    }
-
-    private void handleError(JsonObject json) {
-    }
-    private void handleUnknownMessage(JsonObject json) {
-    }
 
     private static String getChessPiece(ChessBoard board, int row, int col) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
@@ -241,19 +225,6 @@ public class WebsocketClient extends Endpoint{
         return (char) ('a' + number - 1);
     }
 
-    @OnMessage
-    public void onMessage(String message) {
-        System.out.println("Message from server: " + message);
-
-        // Parse incoming message and process accordingly
-        // You'll need to implement the logic to handle different types of messages here
-    }
-
-    @OnClose
-    public void onClose() {
-        System.out.println("WebSocket connection closed.");
-    }
-
     private void sendJoinPlayerMessage(JoinPlayer joinPlayer) throws IOException {
         String joinPlayerMessage = gson.toJson(joinPlayer);
         session.getBasicRemote().sendText(joinPlayerMessage);
@@ -262,11 +233,21 @@ public class WebsocketClient extends Endpoint{
         String observePlayerMessage = gson.toJson(joinObserver);
         session.getBasicRemote().sendText(observePlayerMessage);
     }
-
+    private void handleNotification(JsonObject json) {
+        Notification notification = gson.fromJson(json, Notification.class);
+        System.out.println(notification.message());
+    }
+    public void leave() throws IOException {
+        Leave leave = new Leave(gameID, authToken);
+        String leaveMessage = gson.toJson(leave);
+        session.getBasicRemote().sendText(leaveMessage);
+    }
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
 
     }
+
+
 }
 
 

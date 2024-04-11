@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dataAccess.*;
+import model.GameData;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -14,6 +15,7 @@ import service.GameService;
 import service.UserService;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.userCommands.Leave;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -147,10 +149,26 @@ public class WSServer {
         }
 
 
-    }private void handleMakeMove(Session session, JsonObject json) {
-    }private void handleLeave(Session session, JsonObject json) {
-    }private void handleResign(Session session, JsonObject json) {
-    }private void handleUnknownCommand(Session session, JsonObject json) {
+    }
+    private void handleMakeMove(Session session, JsonObject json) {
+    }
+    private void handleLeave(Session session, JsonObject json) throws DataAccessException, IOException {
+        Leave leave = gson.fromJson(json, Leave.class);
+        String userName = authDAO.getAuth(leave.getAuthString()).username();
+        GameData gameData = gameDAO.getGame(leave.getGameID());
+        GameData newGameData;
+        if (Objects.equals(gameData.whiteUsername(), userName)){
+            newGameData = new GameData(leave.getGameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+        } else {
+            newGameData = new GameData(leave.getGameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+        }
+        gameDAO.updateGame(newGameData);
+        connections.remove(userName);
+        connections.broadcast(leave.getAuthString(), new Notification(userName + "has left the game."));
+    }
+    private void handleResign(Session session, JsonObject json) {
+    }
+    private void handleUnknownCommand(Session session, JsonObject json) {
     }
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {

@@ -76,6 +76,7 @@ public class Main {
                 websocketClient.redrawChessBoard();
                 break;
             case 3:
+                websocketClient.leave();
                 System.out.println("Leaving the game.");
                 inGame = false;
                 observer = false;
