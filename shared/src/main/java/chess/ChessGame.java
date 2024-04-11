@@ -13,6 +13,7 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamTurn = TeamColor.WHITE;
     private ChessBoard board = new ChessBoard();
+    private boolean gameOver = false;
 
     @Override
     public boolean equals(Object o) {
@@ -30,7 +31,7 @@ public class ChessGame {
     public ChessGame() {
 
     }
-
+    public void setGameOver() {gameOver = true;}
     /**
      * @return Which team's turn it is
      */
@@ -123,6 +124,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (gameOver) {
+            throw new InvalidMoveException();
+        }
         if (!this.validMoves(move.getStartPosition()).contains(move)){
             throw new InvalidMoveException();
         }

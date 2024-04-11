@@ -7,10 +7,7 @@ import com.google.gson.JsonParser;
 import ui.EscapeSequences;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.Leave;
-import webSocketMessages.userCommands.MakeMove;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -250,6 +247,12 @@ public class WebsocketClient extends Endpoint{
         MakeMove makeMove = new MakeMove(gameID, move, authToken);
         String makeMoveMessage = gson.toJson(makeMove);
         session.getBasicRemote().sendText(makeMoveMessage);
+    }
+
+    public void resign() throws IOException {
+        Resign resign = new Resign(gameID, authToken);
+        String resignMessage = gson.toJson(resign);
+        session.getBasicRemote().sendText(resignMessage);
     }
 }
 

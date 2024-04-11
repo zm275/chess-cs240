@@ -18,6 +18,7 @@ import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.Leave;
 import webSocketMessages.userCommands.MakeMove;
+import webSocketMessages.userCommands.Resign;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,9 +186,32 @@ public class WSServer {
         connections.remove(userName);
         connections.broadcast(leave.getAuthString(), new Notification(userName + "has left the game."));
     }
-    private void handleResign(Session session, JsonObject json) {
+    private void handleResign(Session session, JsonObject json) throws DataAccessException, IOException {
+        Resign resign = gson.fromJson(json, Resign.class);
+        String userName = authDAO.getAuth(resign.getAuthString()).username();
+        GameData gameData = gameDAO.getGame(resign.getGameID());
+
+        //check if they are a part of the game
+        if ( !Objects.equals(gameData.whiteUsername(), userName) & (!Objects.equals(gameData.blackUsername(), userName))) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: Observers need not resign. (or maybe you resigned twice...)"));
+            session.getRemote().sendString(errorJson);
+            return;
+        } else {
+            //mark the game as over in db
+            gameData.game().setGameOver();
+            GameData newGameData;
+            if (Objects.equals(gameData.whiteUsername(), userName)){
+                newGameData = new GameData(resign.getGameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            } else {
+                newGameData = new GameData(resign.getGameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+            }
+            gameDAO.updateGame(newGameData);
+            connections.broadcast("GUIDOE", new Notification(userName + " has resigned from the game. The game is over."));
+            connections.remove(userName);
+        }
     }
-    private void handleUnknownCommand(Session session, JsonObject json) {
+    private void handleUnknownCommand(Session session, JsonObject json) throws IOException {
+        connections.broadcast("GUIDOE", new Notification("OH NO A UNKNOWN COMMAND"));
     }
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {

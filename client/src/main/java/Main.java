@@ -90,7 +90,7 @@ public class Main {
                     makeMove(scanner);
                     break;
                 case 5:
-
+                    websocketClient.resign();
                     break;
                 case 6:
 
