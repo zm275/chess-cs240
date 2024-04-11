@@ -1,10 +1,7 @@
 import ResponseTypes.*;
-import chess.ChessGame;
+import chess.*;
 import model.GameData;
 import serverFacade.ServerFacade;
-import chess.ChessBoard;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import serverFacade.WebsocketClient;
 import ui.EscapeSequences;
 
@@ -18,6 +15,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 public class Main {
     private static String authToken;
     private static String userName;
+    private static String playerColor;
     private static final ServerFacade serverFacade  = new ServerFacade(8080);
     private static boolean loggedIn = false;
     private static boolean inGame = false;
@@ -30,24 +28,30 @@ public class Main {
         while (true) {
             if (!loggedIn) {
                 System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
-                int choice = scanner.nextInt();
-                scanner.nextLine();
+                if (scanner.hasNextInt()) {
+                    int choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
 
-                switch (choice) {
-                    case 1:
-                        displayHelp();
-                        break;
-                    case 2:
-                        System.out.println("Exiting...");
-                        System.exit(0);
-                    case 3:
-                        preLogin(scanner);
-                        break;
-                    case 4:
-                        preRegister(scanner);
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please try again.");
+                    switch (choice) {
+                        case 1:
+                            displayHelp();
+                            break;
+                        case 2:
+                            System.out.println("Exiting...");
+                            System.exit(0);
+                        case 3:
+                            preLogin(scanner);
+                            break;
+                        case 4:
+                            preRegister(scanner);
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Please try again.");
+                            break;
+                    }
+                } else {
+                    System.out.println("Invalid input. Please enter a number.");
+                    scanner.next(); // Consume invalid input
                 }
             } else if (!inGame) {
                 loggedInPhase(scanner);
@@ -58,114 +62,151 @@ public class Main {
         }
     }
     private static void gamePlayPhase(Scanner scanner) throws IOException {
-        System.out.println(observer ? "Observer >>>" : "Player >>>");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        System.out.println(playerColor + ">>>");
+        if (scanner.hasNextInt()) {
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
 
-        switch (choice) {
-            case 1:
-                System.out.println("Help - Displays text informing the user what actions they can take.");
-                System.out.println("Redraw Chess Board - Redraws the chess board upon the user’s request.");
-                System.out.println("Leave - Removes the user from the game (whether they are playing or observing the game). The client transitions back to the Post-Login UI.");
-                System.out.println("Make Move - Allow the user to input what move they want to make. The board is updated to reflect the result of the move, and the board automatically updates on all clients involved in the game.");
-                System.out.println("Resign - Prompts the user to confirm they want to resign. If they do, the user forfeits the game and the game is over. Does not cause the user to leave the game.");
-                System.out.println("Highlight Legal Moves - Allows the user to input what piece for which they want to highlight legal moves. The selected piece’s current square and all squares it can legally move to are highlighted. This is a local operation and has no effect on remote users’ screens.");
-                break;
-            case 2:
-                //redraw the chessboard
-                websocketClient.redrawChessBoard();
-                break;
-            case 3:
-                websocketClient.leave();
-                System.out.println("Leaving the game.");
-                inGame = false;
-                observer = false;
-                break;
-            case 4:
-                break;
-            case 5:
+            switch (choice) {
+                case 1:
+                    System.out.println("Help - Displays text informing the user what actions they can take.");
+                    System.out.println("Redraw Chess Board - Redraws the chess board upon the user’s request.");
+                    System.out.println("Leave - Removes the user from the game (whether they are playing or observing the game). The client transitions back to the Post-Login UI.");
+                    System.out.println("Make Move - Allow the user to input what move they want to make. The board is updated to reflect the result of the move, and the board automatically updates on all clients involved in the game.");
+                    System.out.println("Resign - Prompts the user to confirm they want to resign. If they do, the user forfeits the game and the game is over. Does not cause the user to leave the game.");
+                    System.out.println("Highlight Legal Moves - Allows the user to input what piece for which they want to highlight legal moves. The selected piece’s current square and all squares it can legally move to are highlighted. This is a local operation and has no effect on remote users’ screens.");
+                    break;
+                case 2:
+                    //redraw the chessboard
+                    websocketClient.redrawChessBoard();
+                    break;
+                case 3:
+                    websocketClient.leave();
+                    System.out.println("Leaving the game.");
+                    inGame = false;
+                    observer = false;
+                    break;
+                case 4:
+                    makeMove(scanner);
+                    break;
+                case 5:
 
-                break;
-            case 6:
+                    break;
+                case 6:
 
-                break;
-            default:
-                System.out.println("Invalid choice. Please try again.");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } else {
+            System.out.println("Invalid input. Please enter a number.");
+            scanner.next(); // Consume invalid input
         }
+    }
 
+    private static void makeMove(Scanner scanner) throws IOException {
+        System.out.println("Enter the start position (e.g., 'a2'): ");
+        String startPosition = scanner.nextLine().trim();
+
+        System.out.println("Enter the end position (e.g., 'a4'): ");
+        String endPosition = scanner.nextLine().trim();
+
+        // Parse start position
+        int startRow = Integer.parseInt(startPosition.substring(1));
+        char startChar = startPosition.substring(0).charAt(0);
+        int startCol = charToNumber(startChar);// Convert column label to index
+
+        // Parse end position
+        int endRow = Integer.parseInt(endPosition.substring(1));
+        int endCol = charToNumber(endPosition.substring(0).charAt(0)); // Convert column label to index
+
+
+        // Print debug info
+        System.out.println("Start Position: Row = " + startRow  + ", Col = " + startCol);
+        System.out.println("End Position: Row = " + endRow  + ", Col = " +endCol);
+
+        // Create ChessMove object
+        ChessMove move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+        websocketClient.makeMove(move);
     }
     private static void loggedInPhase(Scanner scanner) throws Exception {
         System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        if (scanner.hasNextInt()) {
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newlin
 
-        switch (choice) {
-            case 1:
-                System.out.println("1. Help - Displays text informing the user what actions they can take.");
-                System.out.println("2. Logout - Logs out the user. Calls the server logout API to logout the user. After logging out with the server, the client should transition to the Prelogin UI.");
-                System.out.println("3. Create Game - Allows the user to input a name for the new game. Calls the server create API to create the game. This does not join the player to the created game; it only creates the new game in the server.");
-                System.out.println("4. List Games - Lists all the games that currently exist on the server. Calls the server list API to get all the game data, and displays the games in a numbered list, including the game name and players (not observers) in the game. The numbering for the list should be independent of the game IDs.");
-                System.out.println("5. Join Game - Allows the user to specify which game they want to join and what color they want to play. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to join the user to the game.");
-                System.out.println("6. Join Observer - Allows the user to specify which game they want to observe. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to verify that the specified game exists.");
-                break;
-            case 2:
-                logout(authToken);
-                // Transition to Prelogin UI
-                break;
-            case 3:
-                System.out.println("Enter the name for the new game:");
-                String gameName = scanner.nextLine();
-                createGame(gameName);
-                break;
-            case 4:
-                // Call server API to get all game data
-                listAllGames();
-                break;
-            case 5:
-                int gameNumber = 0;
-                boolean validInput = false;
-                while (!validInput) {
-                    System.out.println("Enter the number of the game you want to join:");
-                    try {
-                        gameNumber = Integer.parseInt(scanner.nextLine());
-                        validInput = true; // Set to true if parsing succeeds
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid input. Please enter a valid integer.");
-                        continue; // Restart the loop to ask for input again
+            switch (choice) {
+                case 1:
+                    System.out.println("1. Help - Displays text informing the user what actions they can take.");
+                    System.out.println("2. Logout - Logs out the user. Calls the server logout API to logout the user. After logging out with the server, the client should transition to the Prelogin UI.");
+                    System.out.println("3. Create Game - Allows the user to input a name for the new game. Calls the server create API to create the game. This does not join the player to the created game; it only creates the new game in the server.");
+                    System.out.println("4. List Games - Lists all the games that currently exist on the server. Calls the server list API to get all the game data, and displays the games in a numbered list, including the game name and players (not observers) in the game. The numbering for the list should be independent of the game IDs.");
+                    System.out.println("5. Join Game - Allows the user to specify which game they want to join and what color they want to play. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to join the user to the game.");
+                    System.out.println("6. Join Observer - Allows the user to specify which game they want to observe. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to verify that the specified game exists.");
+                    break;
+                case 2:
+                    logout(authToken);
+                    // Transition to Prelogin UI
+                    break;
+                case 3:
+                    System.out.println("Enter the name for the new game:");
+                    String gameName = scanner.nextLine();
+                    createGame(gameName);
+                    break;
+                case 4:
+                    // Call server API to get all game data
+                    listAllGames();
+                    break;
+                case 5:
+                    int gameNumber = 0;
+                    boolean validInput = false;
+                    while (!validInput) {
+                        System.out.println("Enter the number of the game you want to join:");
+                        try {
+                            gameNumber = Integer.parseInt(scanner.nextLine());
+                            validInput = true; // Set to true if parsing succeeds
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Please enter a valid integer.");
+                            continue; // Restart the loop to ask for input again
+                        }
                     }
-                }
-                System.out.println("Enter the color you want to play (WHITE or BLACK):");
-                String color = scanner.nextLine().toUpperCase();
-                // Call server join API to join the user to the specified game with the specified color
-                joinGame(gameNumber, color, authToken);
-                break;
-            case 6:
-                int observeGameNumber = 0;
-                boolean validObserveInput = false;
-                while (!validObserveInput) {
-                    System.out.println("Enter the number of the game you want to observe:");
-                    try {
-                        observeGameNumber = Integer.parseInt(scanner.nextLine());
-                        validObserveInput = true; // Set to true if parsing succeeds
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid input. Please enter a valid integer.");
-                        continue; // Restart the loop to ask for input again
+                    System.out.println("Enter the color you want to play (WHITE or BLACK):");
+                    String color = scanner.nextLine().toUpperCase();
+                    // Call server join API to join the user to the specified game with the specified color
+                    joinGame(gameNumber, color, authToken);
+                    break;
+                case 6:
+                    int observeGameNumber = 0;
+                    boolean validObserveInput = false;
+                    while (!validObserveInput) {
+                        System.out.println("Enter the number of the game you want to observe:");
+                        try {
+                            observeGameNumber = Integer.parseInt(scanner.nextLine());
+                            validObserveInput = true; // Set to true if parsing succeeds
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Please enter a valid integer.");
+                            continue; // Restart the loop to ask for input again
+                        }
                     }
-                }
-                // Call server join API to verify that the specified game exists
-                watchGame(observeGameNumber, authToken);
-                inGame = true;
-                observer = true;
-                gamePlayPhase(scanner);
-                break;
-            default:
-                System.out.println("Invalid choice. Please try again.");
+                    // Call server join API to verify that the specified game exists
+                    watchGame(observeGameNumber, authToken);
+                    inGame = true;
+                    observer = true;
+                    gamePlayPhase(scanner);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } else {
+            System.out.println("Invalid input. Please enter a number.");
+            scanner.next(); // Consume invalid input
         }
     }
 
     private static void watchGame(int observeGameNumber, String authToken) throws Exception {
         JoinGameResponse response = serverFacade.joinGame(observeGameNumber, "", authToken);
         if (response.isSuccess()){
+            playerColor = "Observer";
             System.out.println("Player: " + userName + " is now watching game: " + observeGameNumber);
             websocketClient = new WebsocketClient(false, 8080, observeGameNumber,null, authToken, userName);
         } else {
@@ -186,6 +227,11 @@ public class Main {
                 teamColor = ChessGame.TeamColor.BLACK;
             } else {
                 System.out.println("Invalid color: " + color);
+            }
+            if (teamColor != null){
+                playerColor = teamColor.toString();
+            } else {
+                playerColor = "Observer";
             }
             websocketClient = new WebsocketClient(true, 8080, gameNumber, teamColor, authToken, userName);
         } else {
@@ -264,6 +310,29 @@ public class Main {
         }
 
     }
+    public static int charToNumber(char character) {
+        switch (Character.toLowerCase(character)) {
+            case 'h':
+                return 1;
+            case 'g':
+                return 2;
+            case 'f':
+                return 3;
+            case 'e':
+                return 4;
+            case 'd':
+                return 5;
+            case 'c':
+                return 6;
+            case 'b':
+                return 7;
+            case 'a':
+                return 8;
+            default:
+                return -1; // Return -1 for characters not in the mapping
+        }
+    }
+
     private static void displayHelp() {
         System.out.println("Help - Displaying available commands:");
         System.out.println("1. Help - Displays this message");

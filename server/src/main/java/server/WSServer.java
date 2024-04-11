@@ -3,6 +3,7 @@ package server;
 import ResponseTypes.DataAccessException;
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -16,6 +17,7 @@ import service.UserService;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.MakeMove;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -150,7 +152,24 @@ public class WSServer {
 
 
     }
-    private void handleMakeMove(Session session, JsonObject json) {
+    private void handleMakeMove(Session session, JsonObject json) throws DataAccessException, InvalidMoveException, IOException {
+        MakeMove makeMove = gson.fromJson(json, MakeMove.class);
+        String userName = authDAO.getAuth(makeMove.getAuthString()).username();
+        //check validity of move
+        GameData gameData = gameDAO.getGame(makeMove.getGameID());
+        ChessGame game = gameData.game();
+        try {
+            game.makeMove(makeMove.getMove());
+        } catch (InvalidMoveException e) {
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: Invalid Move"));
+            session.getRemote().sendString(errorJson);
+            return;
+        }
+        GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+        gameDAO.updateGame(newGameData);
+        connections.broadcast(userName, new Notification(userName + " made the move " + makeMove.getMove()));
+        connections.broadcast(userName, new LoadGame(newGameData.game().getBoard(), newGameData.game().getTeamTurn()));
+        session.getRemote().sendString(gson.toJson(new LoadGame(newGameData.game().getBoard(), newGameData.game().getTeamTurn())));
     }
     private void handleLeave(Session session, JsonObject json) throws DataAccessException, IOException {
         Leave leave = gson.fromJson(json, Leave.class);

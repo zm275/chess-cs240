@@ -1,9 +1,6 @@
 package serverFacade;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -13,6 +10,7 @@ import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.MakeMove;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -103,7 +101,7 @@ public class WebsocketClient extends Endpoint{
         System.out.print(EscapeSequences.RESET_BG_COLOR);
         System.out.println();
     }
-    public static void printWhiteOrientation(ChessBoard board) {
+    public static void printBlackOrientation(ChessBoard board) {
         // Draw the chessboard with escape sequences
         System.out.print(EscapeSequences.ERASE_SCREEN);
         System.out.print(EscapeSequences.moveCursorToLocation(1, 1));
@@ -154,7 +152,7 @@ public class WebsocketClient extends Endpoint{
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
         System.out.print(EscapeSequences.ERASE_LINE);
     }
-    public static void printBlackOrientation(ChessBoard board) {
+    public static void printWhiteOrientation(ChessBoard board) {
         // Draw the chessboard with escape sequences
         System.out.print(EscapeSequences.ERASE_SCREEN);
         System.out.print(EscapeSequences.moveCursorToLocation(1, 1));
@@ -248,6 +246,11 @@ public class WebsocketClient extends Endpoint{
     }
 
 
+    public void makeMove(ChessMove move) throws IOException {
+        MakeMove makeMove = new MakeMove(gameID, move, authToken);
+        String makeMoveMessage = gson.toJson(makeMove);
+        session.getBasicRemote().sendText(makeMoveMessage);
+    }
 }
 
 
