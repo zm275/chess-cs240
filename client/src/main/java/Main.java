@@ -73,8 +73,7 @@ public class Main {
                 break;
             case 2:
                 //redraw the chessboard
-                //get the game from server, this should be done over a websocket
-                //call printGame with the board from the game
+                websocketClient.redrawChessBoard();
                 break;
             case 3:
                 System.out.println("Leaving the game.");

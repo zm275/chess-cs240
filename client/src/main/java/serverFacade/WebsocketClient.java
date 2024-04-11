@@ -24,8 +24,18 @@ public class WebsocketClient extends Endpoint{
 
     private Session session;
     private final Gson gson = new Gson();
+    private final Integer gameID;
+    private final String authToken;
+    private final String userName;
+    private final ChessGame.TeamColor playerColor;
+    private ChessBoard boardCache;
+
 
     public WebsocketClient(boolean join, int port, int gameID, ChessGame.TeamColor playerColor, String authToken, String userName) throws Exception{
+        this.gameID = gameID;
+        this.authToken = authToken;
+        this.userName = userName;
+        this.playerColor = playerColor;
         try {
             // Connect to WebSocket server
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -73,7 +83,12 @@ public class WebsocketClient extends Endpoint{
     private void handleLoadGame(JsonObject json) {
         LoadGame game = gson.fromJson(json, LoadGame.class);
         ChessBoard board = game.chessBoard();
+        boardCache = board;
         printBoard(board, game.teamColor());
+
+    }
+    public void redrawChessBoard() {
+        printBoard(this.boardCache, playerColor);
 
     }
     public static void printBoard(ChessBoard board, ChessGame.TeamColor color) {
