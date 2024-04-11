@@ -3,6 +3,7 @@ package server;
 import ResponseTypes.DataAccessException;
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -14,14 +15,18 @@ import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import service.GameService;
 import service.UserService;
+import webSocketMessages.serverMessages.LegalMovesResponse;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.LegalMoves;
 import webSocketMessages.userCommands.MakeMove;
 import webSocketMessages.userCommands.Resign;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 @WebSocket
@@ -72,12 +77,25 @@ public class WSServer {
                 // Handle RESIGN command
                 handleResign(session, json);
                 break;
+            case "LEGAL_MOVES":
+                legalMoves(session, json);
+                break;
             default:
                 // Handle unknown command
                 handleUnknownCommand(session, json);
                 break;
         }
 
+
+    }
+
+    private void legalMoves(Session session, JsonObject json) throws DataAccessException, IOException {
+        LegalMoves legalMoves = gson.fromJson(json, LegalMoves.class);
+        GameData gameData = gameDAO.getGame(legalMoves.getGameID());
+        Collection<ChessMove> possibleMoves = gameData.game().validMoves(legalMoves.getPosition());
+        LegalMovesResponse legalMovesResponse = new LegalMovesResponse(ServerMessage.ServerMessageType.LEGAL_MOVES_RESPONSE, possibleMoves);
+        String legalMovesResponseJson = gson.toJson(legalMovesResponse);
+        session.getRemote().sendString(legalMovesResponseJson);
 
     }
 

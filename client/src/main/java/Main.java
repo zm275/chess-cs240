@@ -93,7 +93,7 @@ public class Main {
                     websocketClient.resign();
                     break;
                 case 6:
-
+                    highlightLegalMoves(scanner);
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -102,6 +102,17 @@ public class Main {
             System.out.println("Invalid input. Please enter a number.");
             scanner.next(); // Consume invalid input
         }
+    }
+
+    private static void highlightLegalMoves(Scanner scanner) throws IOException {
+        System.out.println("Enter the start position (e.g., 'a2'): ");
+        String startPosition = scanner.nextLine().trim();
+
+        // Parse start position
+        int startRow = Integer.parseInt(startPosition.substring(1));
+        char startChar = startPosition.substring(0).charAt(0);
+        int startCol = charToNumber(startChar);// Convert column label to index
+        websocketClient.highlightLegalMoves(new ChessPosition(startRow, startCol));
     }
 
     private static void makeMove(Scanner scanner) throws IOException {
