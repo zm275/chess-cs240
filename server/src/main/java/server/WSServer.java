@@ -179,6 +179,7 @@ public class WSServer {
         ChessGame game = gameData.game();
         ChessGame.TeamColor playerMoveColor = game.getBoard().getPiece(makeMove.getMove().getStartPosition()).getTeamColor();
         ChessGame.TeamColor playerTrueColor;
+        ChessGame.TeamColor opponentTrueColor;
 
         //check if they are an observer
         if ( !Objects.equals(gameData.whiteUsername(), userName) & (!Objects.equals(gameData.blackUsername(), userName))) {
@@ -189,8 +190,10 @@ public class WSServer {
         //check if they are making move for opponent
         if (Objects.equals(gameData.whiteUsername(), userName)) {
             playerTrueColor = ChessGame.TeamColor.WHITE;
+            opponentTrueColor = ChessGame.TeamColor.BLACK;
         } else {
             playerTrueColor = ChessGame.TeamColor.BLACK;
+            opponentTrueColor = ChessGame.TeamColor.WHITE;
         }
         if (!Objects.equals(playerMoveColor,playerTrueColor)) {
             String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: It is not your turn. Wait for you opponent to make their move."));
@@ -201,7 +204,7 @@ public class WSServer {
         try {
             game.makeMove(makeMove.getMove());
         } catch (InvalidMoveException e) {
-            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error("Error: Invalid Move"));
+            String errorJson = gson.toJson(new webSocketMessages.serverMessages.Error(e.getMessage()));
             session.getRemote().sendString(errorJson);
             return;
         }
@@ -210,7 +213,17 @@ public class WSServer {
         connections.broadcast(userName, new Notification(userName + " made the move " + makeMove.getMove()));
         connections.broadcast(userName, new LoadGame(newGameData.game().getBoard(), newGameData.game().getTeamTurn()));
         session.getRemote().sendString(gson.toJson(new LoadGame(newGameData.game().getBoard(), newGameData.game().getTeamTurn())));
+        if (newGameData.game().isInCheck(opponentTrueColor)) {
+            connections.broadcast("GUIDOE", new Notification(userName + " is in check!"));
+        }
+        if (newGameData.game().isInCheckmate(opponentTrueColor)){
+            connections.broadcast("GUIDOE", new Notification(userName + " is in checkmate!"));
+//            newGameData.game().setGameOver();
+//            GameData newGameData1 = new GameData(newGameData.gameID(), newGameData.whiteUsername(), newGameData.blackUsername(), newGameData.gameName(), newGameData.game());
+//            gameDAO.updateGame(newGameData1);
+        }
     }
+
     private void handleLeave(Session session, JsonObject json) throws DataAccessException, IOException {
         Leave leave = gson.fromJson(json, Leave.class);
         String userName = authDAO.getAuth(leave.getAuthString()).username();

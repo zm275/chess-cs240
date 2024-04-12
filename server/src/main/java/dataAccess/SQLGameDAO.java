@@ -31,12 +31,11 @@ public class SQLGameDAO implements GameDAO{
         int gameID = getNextGameId();
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES ( ?, ?, ?, ?, ?)")) {
-            preparedStatement.setInt(1, gameID);
+                     "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES ( ?, ?, ?, ?)")) {
+            preparedStatement.setString(1, null);
             preparedStatement.setString(2, null);
-            preparedStatement.setString(3, null);
-            preparedStatement.setString(4, gameName);
-            preparedStatement.setString(5, chessGameJson);
+            preparedStatement.setString(3, gameName);
+            preparedStatement.setString(4, chessGameJson);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Error: " + e.getMessage(), 403);

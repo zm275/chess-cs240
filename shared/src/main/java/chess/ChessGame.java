@@ -125,13 +125,13 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if (gameOver) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("The game is over.");
         }
         if (!this.validMoves(move.getStartPosition()).contains(move)){
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Invalid move, press 6 to see valid moves.");
         }
         if (this.teamTurn != board.getPiece(move.getStartPosition()).getTeamColor()){
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("You cant move your opponents pieces silly!");
         }
         ChessPiece[][] squares = board.getSquares();
         ChessPiece piece = board.getPiece(move.getStartPosition());

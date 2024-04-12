@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 
 public class Main {
     private static String authToken;
@@ -130,15 +131,45 @@ public class Main {
         // Parse end position
         int endRow = Integer.parseInt(endPosition.substring(1));
         int endCol = charToNumber(endPosition.substring(0).charAt(0)); // Convert column label to index
+        ChessPiece.PieceType upgradedPiece = null; // Initialize upgradedPiece to null
 
+        if ((endRow == 1) || ((endRow == 8))){
+            System.out.println("What would you like to upgrade your pawn too?");
 
-        // Print debug info
-        System.out.println("Start Position: Row = " + startRow  + ", Col = " + startCol);
-        System.out.println("End Position: Row = " + endRow  + ", Col = " +endCol);
+            // Loop until a valid upgrade choice is made
+            while (upgradedPiece == null) {
+                System.out.println("What would you like to upgrade your pawn to? (Enter 'queen', 'knight', 'rook', or 'bishop'): ");
+                String upgradeChoice = scanner.nextLine().trim().toLowerCase();
+                ChessGame.TeamColor color;
+                if (playerColor == "WHITE") {
+                    color = WHITE;
+                } else {
+                    color = BLACK;
+                }
 
+                switch (upgradeChoice) {
+                    case "queen":
+                        upgradedPiece = ChessPiece.PieceType.QUEEN; // Assuming playerColor is already defined
+                        break;
+                    case "knight":
+                        upgradedPiece = ChessPiece.PieceType.KNIGHT;
+                        break;
+                    case "rook":
+                        upgradedPiece = ChessPiece.PieceType.ROOK;
+                        break;
+                    case "bishop":
+                        upgradedPiece = ChessPiece.PieceType.BISHOP;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please enter 'queen', 'knight', 'rook', or 'bishop'.");
+                        // The loop will continue and prompt the user again
+                }
+            }
+        }
         // Create ChessMove object
-        ChessMove move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+        ChessMove move = new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), upgradedPiece);
         websocketClient.makeMove(move);
+
     }
     private static void loggedInPhase(Scanner scanner) throws Exception {
         System.out.println(loggedIn ? "[Logged_in] >>>" : "[Logged_out] >>>");
